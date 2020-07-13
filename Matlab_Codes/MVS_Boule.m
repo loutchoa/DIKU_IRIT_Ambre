@@ -59,36 +59,32 @@ function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options
         Scores_values = zeros(numPixels, 1); % used to build Scores array
 
 		% Pour chaque point de l'image : (boucle à supprimer !)
-        for currentIndex = 1:length(usedDiopterPointsMain)
+        for currentIndex = 1:numPixels
         
 			Pj = all_Pj(currentIndex,:);
 			% Le voisinage du pixel de l'image principal est directement lisible de par la disposition 
 			Fenetre_Img_Ref = selectedPixels(currentIndex, :, :);
         
-			% Pour chaque image :           
-			for Numero_Image_Temoin = [data.ctrlImgs_list data.witnImgs_list]
+			% We project the points in each witness image :           
+			for currentWitn = [data.ctrlImgs_list data.witnImgs_list]
 			
 				% on évalue le point reprojeté :
-				currentUsedDiopterPoints = diopter.usedDiopterPoints{Numero_Image_Temoin};
+				currentUsedDiopterPoints = diopter.usedDiopterPoints{currentWitn};
 				
-                [~, Indice_pij_prime] = Calcul_de_pij_prime_Discret(camera.t(Numero_Image_Temoin, :)', Pj, camera.visiblePoints{Numero_Image_Temoin}, params.n1, params.n2);
-                currentDioptre_2_Img = Dioptre_2_Img{Numero_Image_Temoin};
+                [~, Indice_pij_prime] = Calcul_de_pij_prime_Discret(camera.t(currentWitn, :)', Pj, camera.visiblePoints{currentWitn}, params.n1, params.n2);
+                currentDioptre_2_Img = Dioptre_2_Img{currentWitn};
                 
 				pij = currentDioptre_2_Img(Indice_pij_prime, :)';
 				ind_temoin = sub2ind([nb_rows, nb_col],pij(1),pij(2));
 
-				% on évalue l'erreur :
-				if (0 < pij(1)) && (pij(1) <= nb_rows) && ...
-				(0 < pij(2)) && (pij(2) <= nb_col) && ...
-                   (data.mask(pij(1), pij(2), Numero_Image_Temoin))
-					
-					if ismember(Numero_Image_Temoin, data.ctrlImgs_list)
+				% Check if the projection is in the mask :
+				if (data.mask(pij(1), pij(2), currentWitn))
+					if ismember(currentWitn, data.ctrlImgs_list)
 						% Ne pas calculer de score
 					else
 						% On retrouve le pixel 
 						ind_temoin = sub2ind([nb_rows, nb_col],pij(1),pij(2));
-						% 
-						Fenetre_Img_Temoin_ij = data.imStereo(ind_temoin, :, :, Numero_Image_Temoin);
+						Fenetre_Img_Temoin_ij = data.imStereo(ind_temoin, :, :, currentWitn);
 						Score_j = sum(abs(Fenetre_Img_Ref(:)-Fenetre_Img_Temoin_ij(:)));                          
 						Scores_values(currentIndex) = Scores_values(currentIndex) + Score_j ;
 					end
