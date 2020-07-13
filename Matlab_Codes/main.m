@@ -36,6 +36,10 @@ camera.focal = 90; %% focal in mm
 load('data/Imgs_Et_Masques_Lapin_Boule_HD.mat') ;
 load('data/Cameras.mat') ;
 
+% Options :
+numberOfSteps = 100 ;
+Profondeur = 20 ;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -48,7 +52,7 @@ load('data/Cameras.mat') ;
 usedCam = [refImg ctrlImgs_list witnImgs_list];
 
 data.Imgs = Imgs(:,:,:,usedCam);
-data.Masques_Imgs = Masques_Imgs(:,:,usedCam);
+data.mask = Masques_Imgs(:,:,usedCam);
 
 % We re-index the several lists of used cameras :
 new_refImg = 1;
@@ -63,20 +67,17 @@ camera.t = t(usedCam,:);
 camera.K = evalK(nb_rows, nb_col, camera);
 
 % Dioptre pour chaque camera
-[diopter.Pts_Dioptres, diopter.visiblePoints] = diopterVisiblePoints(camera.t, diopter);
+[camera.visiblePoints, camera.visiblePointsIdx] = diopterVisiblePoints(camera.t, diopter);
 
 % Img 2 Dioptre
-[Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs, usedDiopterPoints] = Calculer_Imgs_2_Dioptres(diopter.Pts_Dioptres, camera, data.Masques_Imgs);
+[Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs, usedDiopterPoints] = Calculer_Imgs_2_Dioptres(camera.visiblePoints, camera, data.mask);
 
 for pict = 1:nb_im
-	aux = diopter.visiblePoints{pict};
+	aux = camera.visiblePointsIdx{pict};
 	diopter.usedDiopterPoints{pict} = aux(usedDiopterPoints{pict});
 end
 
-% Taille Fenetre SAD, Nb De Tranches, Profondeur
-Taille_Fenetre_SAD = 3 ; % 3*3
-Nb_De_Tranches = 100 ;
-Profondeur = 20 ;
+
 
 % Parameters : 
 %%%%%%%%%%%%%%
@@ -85,15 +86,10 @@ params.n2 = IOR_2;
 
 % Options :
 %%%%%%%%%%%
-options.size_SAD = 3;
-options.nb_steps = Nb_De_Tranches;
+options.nb_steps = numberOfSteps;
 options.Profondeur = Profondeur;
 
-data.Img_Ref = Imgs(:, :, :, new_refImg) ;
-data.Masque_Img_Ref = Masques_Imgs(:, :, new_refImg) ;
-data.Masque_Proj_Ref = Masques_Imgs_Projections_Pts_Dioptres(:, :, new_refImg) ;
-
-data.Masques_Imgs_Projections_Pts_Dioptres = Masques_Imgs_Projections_Pts_Dioptres;
+data.Masque_Proj_Ref = Masques_Imgs_Projections_Pts_Dioptres(:,:,1);
 data.Imgs_2_Dioptres = Imgs_2_Dioptres;
 data.Dioptres_2_Imgs = Dioptres_2_Imgs;
 
@@ -101,7 +97,7 @@ data.Dioptres_2_Imgs = Dioptres_2_Imgs;
 %% Pictures are "vectorized" and neighboring pixels are aligned along the 4th dimension
 
 for picture = 1:nb_im
-	antiMask = find(data.Masques_Imgs(:,:,picture) == 0);
+	antiMask = find(data.mask(:,:,picture) == 0);
 	currentIm = data.Imgs(:,:,:,picture);
 	currentIm = reshape(currentIm, [nb_rows * nb_col, nb_ch]);
 	currentIm(antiMask, :) = 0;
@@ -122,13 +118,13 @@ for picture = 1:nb_im
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 tic
-[Nuage, Couleur] = MVS_Boule(data, camera, params, options, diopter);
+[reconstructedPoints, colors] = MVS_Boule(data, camera, params, options, diopter);
 toc
 
 % Affichage
 figure(1)
-nuage_points_3D = pointCloud(Nuage,'Color',uint8(Couleur));
-pcshow(nuage_points_3D,'VerticalAxis','y','VerticalAxisDir','down','MarkerSize',45);
+ptClouds = pointCloud(reconstructedPoints,'Color',uint8(colors));
+pcshow(ptClouds,'VerticalAxis','y','VerticalAxisDir','down','MarkerSize',45);
 axis equal
 
-save(Output_Name, 'Nuage', 'Couleur', 'nuage_points_3D') ;
+save(Output_Name, 'reconstructedPoints', 'colors', 'ptClouds') ;
