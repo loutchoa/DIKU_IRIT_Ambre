@@ -94,6 +94,7 @@ function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options
 					end
 				else
 					Boolean_Break(currentIndex) = 1 ;
+					break
 				end
             
 			end
