@@ -11,6 +11,9 @@ function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options
     colors = zeros(numPixels, 3);
 
 
+
+
+
 	%% On récupère les différentes variables : à faire propre !
 	Profondeur = options.Profondeur;
     Imgs_2_Dioptres = data.Imgs_2_Dioptres;
@@ -19,27 +22,38 @@ function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options
     usedDiopterPointsMain = diopter.usedDiopterPoints{1};
     P0 = diopter.points(usedDiopterPointsMain,:);
 
+
+
+
+
     % Incident rays :
     incidentRays = P0 - camera.t(1,:);
 	normIR = sqrt(sum(incidentRays.^2,2));
 	incidentRays = incidentRays./normIR;
 	
-	% Refracted rays
+	% Refracted rays :
 	refractedRays = zeros(size(incidentRays));
     for i = 1:length(usedDiopterPointsMain)
 		refractedRays(i,:) = applyRefraction(incidentRays(i,:)', diopter.normals(usedDiopterPointsMain(i),:)', params.n1, params.n2);
 	end
 	
-	
+	% Find steps for each rays
     Pmax = diopter.points(usedDiopterPointsMain,:) + refractedRays*Profondeur;
-    Pas = (Pmax - diopter.points(usedDiopterPointsMain,:))/options.nb_steps;
+    step = (Pmax - diopter.points(usedDiopterPointsMain,:))/options.nb_steps;
+    
+    % Score array for the MVS :
     Scores = Inf*ones(numPixels, options.nb_steps);     
+    
+    
+    
+    
+    
     
     % Pour chaque profondeur :
     for Numero_Tranche = 1:options.nb_steps
         
 		% On calcue les points projetés :
-        all_Pj = diopter.points(usedDiopterPointsMain,:) + Numero_Tranche*Pas; % j = Numero_Tranche
+        all_Pj = diopter.points(usedDiopterPointsMain,:) + Numero_Tranche*step; % j = Numero_Tranche
         
         Booleen_Break = zeros(length(usedDiopterPointsMain),1);
         Scores_values = zeros(numPixels, 1); 
@@ -92,6 +106,6 @@ function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options
     
     [min_vals,min_idx] = min(Scores,[],2);
 	test = find(min_vals<Inf);
-	reconstructedPoints = diopter.points(usedDiopterPointsMain(test),:) + min_idx(test).*Pas(test,:);
+	reconstructedPoints = diopter.points(usedDiopterPointsMain(test),:) + min_idx(test).*step(test,:);
     colors = ones(size(reconstructedPoints));
 end
