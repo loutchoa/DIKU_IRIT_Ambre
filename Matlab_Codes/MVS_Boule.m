@@ -75,6 +75,12 @@ function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options
                 currentDioptre_2_Img = Dioptre_2_Img{currentWitn};
                 
 				pij = currentDioptre_2_Img(Indice_pij_prime, :)';
+				
+				if(pij(1) <= 0 && pij(2) <= 0)
+					Boolean_Break(currentIndex) = 1 ;
+					break
+				end
+				
 				ind_temoin = sub2ind([nb_rows, nb_col],pij(1),pij(2));
 
 				% Check if the projection is in the mask :
