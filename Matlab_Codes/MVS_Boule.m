@@ -1,16 +1,12 @@
 function [Nuage, Couleur] = MVS_Boule(data, camera, params, options, diopter);
 
 	%% On récupère les différentes variables : à faire propre !
-	Liste_Num_Img_Ctrl = data.Liste_Num_Img_Ctrl;
-	Liste_Num_Imgs_Temoins = data.Liste_Num_Imgs_Temoins;
-
 	Profondeur = options.Profondeur;	
     Masques_Imgs = data.Masques_Imgs;
     
     Masques_Imgs_Projections_Pts_Dioptres = data.Masques_Imgs_Projections_Pts_Dioptres;
     Imgs_2_Dioptres = data.Imgs_2_Dioptres;
-
-	Pts_Dioptres = diopter.pointsCELL;
+		
 	Dioptre_2_Img = data.Dioptres_2_Imgs;
 	
     t = camera.t;
@@ -64,12 +60,12 @@ function [Nuage, Couleur] = MVS_Boule(data, camera, params, options, diopter);
 			Fenetre_Img_Ref = selectedPixels(currentIndex, :, :);
         
 			% Pour chaque image :           
-			for Numero_Image_Temoin = [Liste_Num_Img_Ctrl Liste_Num_Imgs_Temoins]
+			for Numero_Image_Temoin = [data.ctrlImgs_list data.witnImgs_list]
 			
 				% on évalue le point reprojeté :
 				currentUsedDiopterPoints = diopter.usedDiopterPoints{Numero_Image_Temoin};
 				
-                [~, Indice_pij_prime] = Calcul_de_pij_prime_Discret(t(Numero_Image_Temoin, :)', Pj, Pts_Dioptres{Numero_Image_Temoin}, params.n1, params.n2);
+                [~, Indice_pij_prime] = Calcul_de_pij_prime_Discret(t(Numero_Image_Temoin, :)', Pj, diopter.Pts_Dioptres{Numero_Image_Temoin}, params.n1, params.n2);
                 currentDioptre_2_Img = Dioptre_2_Img{Numero_Image_Temoin};
                 
 				pij = currentDioptre_2_Img(Indice_pij_prime, :)';
@@ -80,7 +76,7 @@ function [Nuage, Couleur] = MVS_Boule(data, camera, params, options, diopter);
 				(0 < pij(2)) && (pij(2) <= Nb_De_Colonnes) && ...
                    (Masques_Imgs(pij(1), pij(2), Numero_Image_Temoin))
 					
-					if ismember(Numero_Image_Temoin, Liste_Num_Img_Ctrl)
+					if ismember(Numero_Image_Temoin, data.ctrlImgs_list)
 						% Ne pas calculer de score
 					else
 						% On retrouve le pixel 

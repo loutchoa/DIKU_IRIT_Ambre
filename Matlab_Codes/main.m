@@ -10,14 +10,13 @@ close all;
 % - Nettoyer les variables + traduction
 % - Ajouter commentaires
 
-%%%%%% PARAMETRES %%%%%%%%
 %% Required information : to be provided by the user
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+refImg = 1;
+ctrlImgs_list = [8];
+witnImgs_list = [28, 3];
 
-Num_Img_Ref = 1 ;
-Liste_Num_Img_Ctrl = [8] ;
-Liste_Num_Imgs_Temoins = [28, 3] ;
-
-Output_Name = "Nuage_" + int2str(Num_Img_Ref) + ".mat" ;
+Output_Name = "Nuage_" + int2str(refImg) + ".mat" ;
 
 % Indexes of refraction :
 IOR_1 = 1;   % Air
@@ -33,38 +32,41 @@ diopter.center = [0; 0; 100];
 camera.sensorLength = 36;
 camera.focal = 90; %% focal in mm
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[diopter.points, diopter.normals] = diopterSampling(diopter);
-
+% Files to load :
 load('data/Imgs_Et_Masques_Lapin_Boule_HD.mat') ;
 load('data/Cameras.mat') ;
 
-%% Delete non-used data
-usedCam = [Num_Img_Ref Liste_Num_Img_Ctrl Liste_Num_Imgs_Temoins];
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Get diopter points and normals :
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+[diopter.points, diopter.normals] = diopterSampling(diopter);
+
+%% Use only selected cameras :
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+usedCam = [refImg ctrlImgs_list witnImgs_list];
 
 data.Imgs = Imgs(:,:,:,usedCam);
 data.Masques_Imgs = Masques_Imgs(:,:,usedCam);
 
-camera.Position_Camera = Position_Camera(usedCam,:);
-camera.R = R(:,:,usedCam);
-camera.t = t(usedCam,:);
-
-Selected_Num_Img_Ref = 1;
-Selected_Liste_Num_Img_Ctrl = 2:(1+length(Liste_Num_Img_Ctrl));
-Selected_Liste_Num_Imgs_Temoins = length(Selected_Liste_Num_Img_Ctrl)+2:(length(Selected_Liste_Num_Img_Ctrl)+1+length(Liste_Num_Imgs_Temoins));
+% We re-index the several lists of used cameras :
+new_refImg = 1;
+data.ctrlImgs_list = 2:(1+length(ctrlImgs_list));
+data.witnImgs_list = length(data.ctrlImgs_list)+2:(length(data.ctrlImgs_list)+1+length(witnImgs_list));
 
 [nb_rows, nb_col, nb_ch, nb_im] = size(data.Imgs);
 
-% Dioptre pour chaque camera
-[Pts_Dioptres, diopter.visiblePoints] = diopterVisiblePoints(camera.t, diopter);
-diopter.pointsCELL = Pts_Dioptres;
+% Get selected cameras information :
+camera.R = R(:,:,usedCam);
+camera.t = t(usedCam,:);
+camera.K = evalK(nb_rows, nb_col, camera);
 
-% Calibration matrix K
-K = evalK(nb_rows, nb_col, camera);
-camera.K = K;
+% Dioptre pour chaque camera
+[diopter.Pts_Dioptres, diopter.visiblePoints] = diopterVisiblePoints(camera.t, diopter);
 
 % Img 2 Dioptre
-[Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs, usedDiopterPoints] = Calculer_Imgs_2_Dioptres(Pts_Dioptres, camera, data.Masques_Imgs);
+[Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs, usedDiopterPoints] = Calculer_Imgs_2_Dioptres(diopter.Pts_Dioptres, camera, data.Masques_Imgs);
 
 for pict = 1:nb_im
 	aux = diopter.visiblePoints{pict};
@@ -76,23 +78,20 @@ Taille_Fenetre_SAD = 3 ; % 3*3
 Nb_De_Tranches = 100 ;
 Profondeur = 20 ;
 
-% MVS
 % Parameters : 
 %%%%%%%%%%%%%%
 params.n1 = IOR_1;
 params.n2 = IOR_2;
 
+% Options :
+%%%%%%%%%%%
 options.size_SAD = 3;
 options.nb_steps = Nb_De_Tranches;
 options.Profondeur = Profondeur;
 
-data.Img_Ref = Imgs(:, :, :, Num_Img_Ref) ;
-data.Masque_Img_Ref = Masques_Imgs(:, :, Num_Img_Ref) ;
-data.Masque_Proj_Ref = Masques_Imgs_Projections_Pts_Dioptres(:, :, Num_Img_Ref) ;
-
-data.Num_Img_Ref = Selected_Num_Img_Ref;
-data.Liste_Num_Img_Ctrl = Selected_Liste_Num_Img_Ctrl;
-data.Liste_Num_Imgs_Temoins = Selected_Liste_Num_Imgs_Temoins;
+data.Img_Ref = Imgs(:, :, :, new_refImg) ;
+data.Masque_Img_Ref = Masques_Imgs(:, :, new_refImg) ;
+data.Masque_Proj_Ref = Masques_Imgs_Projections_Pts_Dioptres(:, :, new_refImg) ;
 
 data.Masques_Imgs_Projections_Pts_Dioptres = Masques_Imgs_Projections_Pts_Dioptres;
 data.Imgs_2_Dioptres = Imgs_2_Dioptres;
