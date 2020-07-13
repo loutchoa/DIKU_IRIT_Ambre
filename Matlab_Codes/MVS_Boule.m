@@ -1,39 +1,33 @@
 function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options, diopter);
 
+    [nb_rows, nb_col, nb_ch, nb_im] = size(data.Imgs);
+
 	% We focus on pixels of the diopter that are visible in the reference image :
 	indexes = find(data.Masque_Proj_Ref);
     numPixels = length(indexes);
+    selectedPixels = data.imStereo(indexes, :, :, 1);
     
     reconstructedPoints = zeros(numPixels, 3);
     colors = zeros(numPixels, 3);
-    
-    
-    
-    
-    
+
+
 	%% On récupère les différentes variables : à faire propre !
 	Profondeur = options.Profondeur;
     Imgs_2_Dioptres = data.Imgs_2_Dioptres;
 	Dioptre_2_Img = data.Dioptres_2_Imgs;
     
-    [Nb_De_Lignes, Nb_De_Colonnes, ~, ~] = size(data.Imgs) ;
-    
-    
-    selectedPixels = data.imStereo(indexes, :, :, 1);
     usedDiopterPointsMain = diopter.usedDiopterPoints{1};
     P0 = diopter.points(usedDiopterPointsMain,:);
-    
-    t_Ref = camera.t(1,:);
-    
-    % On évalue les rayons incidents :
-    incidentRays = P0 - t_Ref;
+
+    % Incident rays :
+    incidentRays = P0 - camera.t(1,:);
 	normIR = sqrt(sum(incidentRays.^2,2));
 	incidentRays = incidentRays./normIR;
 	
-	% On évalue l'ensemble des rayons réfractés 
+	% Refracted rays
 	refractedRays = zeros(size(incidentRays));
     for i = 1:length(usedDiopterPointsMain)
-		refractedRays(i,:) = Calculer_VD_Du_Rayon_Refracte(incidentRays(i,:)', diopter.normals(usedDiopterPointsMain(i),:)', params.n1, params.n2);
+		refractedRays(i,:) = applyRefraction(incidentRays(i,:)', diopter.normals(usedDiopterPointsMain(i),:)', params.n1, params.n2);
 	end
 	
 	
@@ -67,18 +61,18 @@ function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options
                 currentDioptre_2_Img = Dioptre_2_Img{Numero_Image_Temoin};
                 
 				pij = currentDioptre_2_Img(Indice_pij_prime, :)';
-				ind_temoin = sub2ind([Nb_De_Lignes, Nb_De_Colonnes],pij(1),pij(2));
+				ind_temoin = sub2ind([nb_rows, nb_col],pij(1),pij(2));
 
 				% on évalue l'erreur :
-				if (0 < pij(1)) && (pij(1) <= Nb_De_Lignes) && ...
-				(0 < pij(2)) && (pij(2) <= Nb_De_Colonnes) && ...
+				if (0 < pij(1)) && (pij(1) <= nb_rows) && ...
+				(0 < pij(2)) && (pij(2) <= nb_col) && ...
                    (data.mask(pij(1), pij(2), Numero_Image_Temoin))
 					
 					if ismember(Numero_Image_Temoin, data.ctrlImgs_list)
 						% Ne pas calculer de score
 					else
 						% On retrouve le pixel 
-						ind_temoin = sub2ind([Nb_De_Lignes, Nb_De_Colonnes],pij(1),pij(2));
+						ind_temoin = sub2ind([nb_rows, nb_col],pij(1),pij(2));
 						% 
 						Fenetre_Img_Temoin_ij = data.imStereo(ind_temoin, :, :, Numero_Image_Temoin);
 						Score_j = sum(abs(Fenetre_Img_Ref(:)-Fenetre_Img_Temoin_ij(:)));                          
