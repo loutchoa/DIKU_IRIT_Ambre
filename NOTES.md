@@ -11,6 +11,7 @@
   
  * **Matlab_Codes** (en cours) contient :
    * une version _plus propre_ et commentée du code de Matthew, j'ai également tenté quelques améliorations
+   * la version actuelle n'est clairement pas définitive, il reste encore quelques parties incongrues, ou même inutiles dans le code mais ça devrait disparaitre d'ici peu
 
 ### TO DO :
 
