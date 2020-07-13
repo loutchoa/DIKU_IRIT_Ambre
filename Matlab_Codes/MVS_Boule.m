@@ -48,15 +48,15 @@ function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options
     
     
     
-    
-    % Pour chaque profondeur :
-    for Numero_Tranche = 1:options.nb_steps
+    %% Heart of the MVS :
+    %%%%%%%%%%%%%%%%%%%%%    
+    for currentStep = 1:options.nb_steps
         
-		% On calcue les points projetés :
-        all_Pj = diopter.points(usedDiopterPointsMain,:) + Numero_Tranche*step; % j = Numero_Tranche
-        
-        Booleen_Break = zeros(length(usedDiopterPointsMain),1);
-        Scores_values = zeros(numPixels, 1); 
+		% 3D points corresponding to the image pixels associated with the current depth :
+        all_Pj = diopter.points(usedDiopterPointsMain,:) + currentStep*step;
+
+        Boolean_Break = zeros(length(usedDiopterPointsMain),1); % will be set to one if a 3D pixel fall outside of the witness mask in one of the images :
+        Scores_values = zeros(numPixels, 1); % used to build Scores array
 
 		% Pour chaque point de l'image : (boucle à supprimer !)
         for currentIndex = 1:length(usedDiopterPointsMain)
@@ -93,14 +93,14 @@ function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options
 						Scores_values(currentIndex) = Scores_values(currentIndex) + Score_j ;
 					end
 				else
-					Booleen_Break(currentIndex) = 1 ;
+					Boolean_Break(currentIndex) = 1 ;
 				end
             
 			end
         end
 	
-		valid = find(~Booleen_Break);
-		Scores(valid, Numero_Tranche) = Scores_values(valid);
+		valid = find(~Boolean_Break);
+		Scores(valid, currentStep) = Scores_values(valid);
         
     end
     
