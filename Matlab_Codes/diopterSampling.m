@@ -1,7 +1,7 @@
 %% Get diopter points and normal : we try here to implement the function several diopter shapes, 
 %% and ultimately, read these data in case of unorthodox diopter shape
 
-%% Input : diopter object as constructed in the main
+%% Input : diopter object as constructed in main.m
 %% Output : 
 %%    - points : 3D position of diopter points in the main frame
 %%    - normals : 3D normals associated with 3d points
