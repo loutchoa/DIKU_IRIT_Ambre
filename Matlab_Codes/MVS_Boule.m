@@ -2,7 +2,7 @@ function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options
 
     [nb_rows, nb_col, nb_ch, nb_im] = size(data.Imgs);
 
-	% We focus on pixels of the diopter that are visible in the reference image :
+	% We focus on points of the diopter that are visible in the reference image :
 	indexes = find(data.Masque_Proj_Ref);
     numPixels = length(indexes);
     selectedPixels = data.imStereo(indexes, :, :, 1);
