@@ -70,7 +70,7 @@ camera.K = evalK(nb_rows, nb_col, camera);
 [camera.visiblePoints, camera.visiblePointsIdx] = diopterVisiblePoints(camera.t, diopter);
 
 % Img 2 Dioptre
-[Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs, usedDiopterPoints] = Calculer_Imgs_2_Dioptres(camera, data.mask);
+[Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs, usedDiopterPoints] = getAllCamDiopterCorrespondances(camera, data.mask);
 
 for pict = 1:nb_im
 	aux = camera.visiblePointsIdx{pict};
