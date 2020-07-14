@@ -94,7 +94,7 @@ data.Imgs_2_Dioptres = Imgs_2_Dioptres;
 data.Dioptres_2_Imgs = Dioptres_2_Imgs;
 
 %% Prepare Stereo Data
-%% Pictures are "vectorized" and neighboring pixels are aligned along the 4th dimension
+%% Pictures are "vectorized" and neighboring pixels are aligned along the 3rd dimension
 
 for picture = 1:nb_im
 	antiMask = find(data.mask(:,:,picture) == 0);
@@ -121,7 +121,7 @@ tic
 [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options, diopter);
 toc
 
-% Affichage
+% Display
 figure(1)
 ptClouds = pointCloud(reconstructedPoints,'Color',uint8(colors));
 pcshow(ptClouds,'VerticalAxis','y','VerticalAxisDir','down','MarkerSize',45);
