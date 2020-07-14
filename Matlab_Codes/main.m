@@ -8,7 +8,6 @@ close all;
 %			- Imgs_2_Dioptres pourrait renvoyer indice + temps de parcours dans l'air
 % - Virer la boucle sur les pixels
 % - Nettoyer les variables + traduction
-% - Ajouter commentaires
 
 %% Required information : to be provided by the user
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
