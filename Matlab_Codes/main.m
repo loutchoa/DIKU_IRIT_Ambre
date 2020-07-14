@@ -38,7 +38,7 @@ load('data/Cameras.mat') ;
 
 % Options :
 numberOfSteps = 100 ;
-Profondeur = 20 ;
+depthMax = 20 ;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -87,7 +87,7 @@ params.n2 = IOR_2;
 % Options :
 %%%%%%%%%%%
 options.nb_steps = numberOfSteps;
-options.Profondeur = Profondeur;
+options.depthMax = depthMax;
 
 data.Masque_Proj_Ref = Masques_Imgs_Projections_Pts_Dioptres(:,:,1);
 data.Imgs_2_Dioptres = Imgs_2_Dioptres;

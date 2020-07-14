@@ -15,7 +15,6 @@ function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options
 
 
 	%% On récupère les différentes variables : à faire propre !
-	Profondeur = options.Profondeur;
     Imgs_2_Dioptres = data.Imgs_2_Dioptres;
 	Dioptre_2_Img = data.Dioptres_2_Imgs;
     
@@ -38,15 +37,12 @@ function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options
 	end
 	
 	% Find steps for each rays
-    Pmax = diopter.points(usedDiopterPointsMain,:) + refractedRays*Profondeur;
+    Pmax = diopter.points(usedDiopterPointsMain,:) + refractedRays*options.depthMax;
     step = (Pmax - diopter.points(usedDiopterPointsMain,:))/options.nb_steps;
     
     % Score array for the MVS :
     Scores = Inf*ones(numPixels, options.nb_steps);     
-    
-    
-    
-    
+      
     
     %% Heart of the MVS :
     %%%%%%%%%%%%%%%%%%%%%    
@@ -62,22 +58,20 @@ function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options
         for currentIndex = 1:numPixels
         
 			Pj = all_Pj(currentIndex,:);
-			% Le voisinage du pixel de l'image principal est directement lisible de par la disposition 
+			
+			% Neighborhood of the current pixel in the main picture
 			Fenetre_Img_Ref = selectedPixels(currentIndex, :, :);
         
 			% We project the points in each witness image :           
 			for currentWitn = [data.ctrlImgs_list data.witnImgs_list]
-			
-				% on évalue le point reprojeté :
-				currentUsedDiopterPoints = diopter.usedDiopterPoints{currentWitn};
 				
                 [~, Indice_pij_prime] = Calcul_de_pij_prime_Discret(camera.t(currentWitn, :)', Pj, camera.visiblePoints{currentWitn}, params.n1, params.n2);
                 currentDioptre_2_Img = Dioptre_2_Img{currentWitn};
                 
 				pij = currentDioptre_2_Img(Indice_pij_prime, :)';
 				
-				if(pij(1) <= 0 && pij(2) <= 0)
-					Boolean_Break(currentIndex) = 1 ;
+				if(pij(1) <= 0 || pij(2) <= 0)
+					Boolean_Break(currentIndex) = 1;
 					break
 				end
 				
@@ -95,7 +89,7 @@ function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options
 						Scores_values(currentIndex) = Scores_values(currentIndex) + Score_j ;
 					end
 				else
-					Boolean_Break(currentIndex) = 1 ;
+					Boolean_Break(currentIndex) = 1;
 					break
 				end
             
