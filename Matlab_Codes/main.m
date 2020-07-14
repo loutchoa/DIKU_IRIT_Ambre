@@ -66,7 +66,7 @@ camera.R = R(:,:,usedCam);
 camera.t = t(usedCam,:);
 camera.K = evalK(nb_rows, nb_col, camera);
 
-% Dioptre pour chaque camera
+% Evaluate visible diopter points for each camera
 [camera.visiblePoints, camera.visiblePointsIdx] = diopterVisiblePoints(camera.t, diopter);
 
 % Img 2 Dioptre
@@ -76,8 +76,6 @@ for pict = 1:nb_im
 	aux = camera.visiblePointsIdx{pict};
 	diopter.usedDiopterPoints{pict} = aux(usedDiopterPoints{pict});
 end
-
-
 
 % Parameters : 
 %%%%%%%%%%%%%%
