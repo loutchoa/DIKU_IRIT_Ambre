@@ -22,7 +22,7 @@ for (var extIndex = 0; extIndex<data.poses.length; extIndex++) {
             text += row + ';\n';
         }
     }
-    text += 'C(:,' + (extIndex + 1) + ') = [';
+    text += 'T(:,' + (extIndex + 1) + ') = [';
     text += ext.pose.transform.center.join(';') + '];\n\n';
 }
 
