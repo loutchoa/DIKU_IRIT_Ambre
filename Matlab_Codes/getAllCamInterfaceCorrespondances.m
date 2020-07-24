@@ -1,15 +1,15 @@
-%% Masques_Imgs_Projections_Pts_Dioptres = masques des points du dioptre se reprojetant dans chaque image
-%% Imgs_2_Dioptres(i,j,k) = Point du dioptre se reprojetant au pixel i,j de l'image k
-%% Dioptre_2_Img(i) = coordonées des pixels de l'image i dans lesquels se repojettent les points du dioptre
+%% Masques_Imgs_Projections_Pts_Dioptres = masques des points du interface se reprojetant dans chaque image
+%% Imgs_2_Dioptres(i,j,k) = Point du interface se reprojetant au pixel i,j de l'image k
+%% Dioptre_2_Img(i) = coordonées des pixels de l'image i dans lesquels se repojettent les points du interface
 
-function [Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs, usedDiopterPoints] = getAllCamDiopterCorrespondances(camera, Masques_Imgs)
+function [Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs, usedDiopterPoints] = getAllCamInterfaceCorrespondances(camera, Masques_Imgs)
     [Nb_Lignes, Nb_Colonnes, Nb_Imgs] = size(Masques_Imgs);
     Masques_Imgs_Projections_Pts_Dioptres = zeros(size(Masques_Imgs), 'logical');
     Imgs_2_Dioptres = zeros(Nb_Lignes, Nb_Colonnes, 3, Nb_Imgs);
     Dioptres_2_Imgs = cell(Nb_Imgs, 1);
 
     for i = 1:Nb_Imgs
-        [Masque_Img_Projections_Pts_Dioptre_i, Img_2_Dioptre_i, Dioptre_2_Img_i, usedDiopterPoints_i] = getCamDiopterCorrespondances(...
+        [Masque_Img_Projections_Pts_Dioptre_i, Img_2_Dioptre_i, Dioptre_2_Img_i, usedDiopterPoints_i] = getCamDInterfaceCorrespondances(...
             camera.visiblePoints{i}, camera.R(:, :, i), camera.t(i, :)', camera.K, Masques_Imgs(:, :, i)) ;
         Masques_Imgs_Projections_Pts_Dioptres(:, :, i) = Masque_Img_Projections_Pts_Dioptre_i ;
         Imgs_2_Dioptres(:, :, :, i) = Img_2_Dioptre_i ;
@@ -19,7 +19,7 @@ function [Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Img
 end
 
 
-function [diopter_mask, Img_2_Dioptre, Dioptre_2_Img, usedDiopterPoints] = getCamDiopterCorrespondances(Pts_Dioptre, R, t, Matrice_De_Calibrage, mask)
+function [diopter_mask, Img_2_Dioptre, Dioptre_2_Img, usedDiopterPoints] = getCamDInterfaceCorrespondances(Pts_Dioptre, R, t, Matrice_De_Calibrage, mask)
     
     Nb_Pts_Dioptre = size(Pts_Dioptre, 1) ;
   

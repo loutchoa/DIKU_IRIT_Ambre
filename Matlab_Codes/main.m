@@ -22,10 +22,10 @@ IOR_1 = 1;   % Air
 IOR_2 = 1.5; % Glass - Ambre IOR is 1.541
 
 % Diopter's properties
-diopter.shape = 'sphere';
-diopter.facesNumber = 50;
-diopter.radius = 10;
-diopter.center = [0; 0; 100];
+interface.shape = 'sphere';
+interface.facesNumber = 50;
+interface.radius = 10;
+interface.center = [0; 0; 100];
 
 % Camera parameters :
 camera.sensorLength = 36;
@@ -42,9 +42,9 @@ depthMax = 20 ;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% Get diopter points and normals :
+%% Get interface points and normals :
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[diopter.points, diopter.normals] = diopterSampling(diopter);
+[interface.points, interface.normals] = interfaceSampling(interface);
 
 %% Use only selected cameras :
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -65,15 +65,15 @@ camera.R = R(:,:,usedCam);
 camera.t = t(usedCam,:);
 camera.K = evalK(nb_rows, nb_col, camera);
 
-% Evaluate visible diopter points for each camera
-[camera.visiblePoints, camera.visiblePointsIdx] = diopterVisiblePoints(camera.t, diopter);
+% Evaluate visible interface points for each camera
+[camera.visiblePoints, camera.visiblePointsIdx] = interfaceVisiblePoints(camera.t, interface);
 
-% Img 2 Dioptre
-[Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs, usedDiopterPoints] = getAllCamDiopterCorrespondances(camera, data.mask);
+% Img 2 Interface
+[Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs, usedInterfacePoints] = getAllCamInterfaceCorrespondances(camera, data.mask);
 
 for pict = 1:nb_im
 	aux = camera.visiblePointsIdx{pict};
-	diopter.usedDiopterPoints{pict} = aux(usedDiopterPoints{pict});
+	interface.usedInterfacePoints{pict} = aux(usedInterfacePoints{pict});
 end
 
 % Parameters : 
@@ -115,7 +115,7 @@ for picture = 1:nb_im
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 tic
-[reconstructedPoints, colors] = MVS_Boule(data, camera, params, options, diopter);
+[reconstructedPoints, colors] = MVS_Boule(data, camera, params, options, interface);
 toc
 
 % Display

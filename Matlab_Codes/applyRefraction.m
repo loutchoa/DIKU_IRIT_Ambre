@@ -2,17 +2,17 @@
 
 %% Input : 
 %%    - incidentRay : direction of the incident ray
-%%    - diopterNormal : normal vector of the diopter at the impact point
+%%    - interfaceNormal : normal vector of the interface at the impact point
 %%    - n_1, n_2, indexes of refraction of the both medium
 %% Output : 
 %%    - refractedRay : direction of the refracted ray
 
-function refractedRay = applyRefraction(incidentRay, diopterNormal, n_1, n_2)
-	if isequal(cross(incidentRay, diopterNormal), [0 ; 0 ; 0])
+function refractedRay = applyRefraction(incidentRay, interfaceNormal, n_1, n_2)
+	if isequal(cross(incidentRay, interfaceNormal), [0 ; 0 ; 0])
         refractedRay = incidentRay;
     else
-        coeff = norm(cross(incidentRay, diopterNormal))*sign(dot(incidentRay, diopterNormal))/(tan(asin(norm(cross(incidentRay, diopterNormal))*n_1/n_2)))-dot(incidentRay, diopterNormal);
-        refractedRay = incidentRay + coeff*diopterNormal;
+        coeff = norm(cross(incidentRay, interfaceNormal))*sign(dot(incidentRay, interfaceNormal))/(tan(asin(norm(cross(incidentRay, interfaceNormal))*n_1/n_2)))-dot(incidentRay, interfaceNormal);
+        refractedRay = incidentRay + coeff*interfaceNormal;
     end
     refractedRay = refractedRay/norm(refractedRay);
 end

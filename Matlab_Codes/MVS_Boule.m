@@ -1,8 +1,8 @@
-function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options, diopter);
+function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options, interface);
 
     [nb_rows, nb_col, nb_ch, nb_im] = size(data.Imgs);
 
-	% We focus on points of the diopter that are visible in the reference image :
+	% We focus on points of the interface that are visible in the reference image :
 	indexes = find(data.Masque_Proj_Ref);
     numPixels = length(indexes);
     selectedPixels = data.imStereo(indexes, :, :, 1);
@@ -10,20 +10,10 @@ function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options
     reconstructedPoints = zeros(numPixels, 3);
     colors = zeros(numPixels, 3);
 
-
-
-
-
-	%% On récupère les différentes variables : à faire propre !
-    Imgs_2_Dioptres = data.Imgs_2_Dioptres;
-	Dioptre_2_Img = data.Dioptres_2_Imgs;
+	Dioptre_2_Img = data.Dioptres_2_Imgs;    
+    usedInterfacePointsMain = interface.usedInterfacePoints{1};
     
-    usedDiopterPointsMain = diopter.usedDiopterPoints{1};
-    P0 = diopter.points(usedDiopterPointsMain,:);
-
-
-
-
+    P0 = interface.points(usedInterfacePointsMain,:);
 
     % Incident rays :
     incidentRays = P0 - camera.t(1,:);
@@ -32,13 +22,13 @@ function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options
 	
 	% Refracted rays :
 	refractedRays = zeros(size(incidentRays));
-    for i = 1:length(usedDiopterPointsMain)
-		refractedRays(i,:) = applyRefraction(incidentRays(i,:)', diopter.normals(usedDiopterPointsMain(i),:)', params.n1, params.n2);
+    for i = 1:length(usedInterfacePointsMain)
+		refractedRays(i,:) = applyRefraction(incidentRays(i,:)', interface.normals(usedInterfacePointsMain(i),:)', params.n1, params.n2);
 	end
 	
 	% Find steps for each rays
-    Pmax = diopter.points(usedDiopterPointsMain,:) + refractedRays*options.depthMax;
-    step = (Pmax - diopter.points(usedDiopterPointsMain,:))/options.nb_steps;
+    Pmax = interface.points(usedInterfacePointsMain,:) + refractedRays*options.depthMax;
+    step = (Pmax - interface.points(usedInterfacePointsMain,:))/options.nb_steps;
     
     % Score array for the MVS :
     Scores = Inf*ones(numPixels, options.nb_steps);     
@@ -49,9 +39,9 @@ function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options
     for currentStep = 1:options.nb_steps
         
 		% 3D points corresponding to the image pixels associated with the current depth :
-        all_Pj = diopter.points(usedDiopterPointsMain,:) + currentStep*step;
+        all_Pj = interface.points(usedInterfacePointsMain,:) + currentStep*step;
 
-        Boolean_Break = zeros(length(usedDiopterPointsMain),1); % will be set to one if a 3D pixel fall outside of the witness mask in one of the images :
+        Boolean_Break = zeros(length(usedInterfacePointsMain),1); % will be set to one if a 3D pixel fall outside of the witness mask in one of the images :
         Scores_values = zeros(numPixels, 1); % used to build Scores array
 
 		% Pour chaque point de l'image : (boucle à supprimer !)
@@ -103,6 +93,6 @@ function [reconstructedPoints, colors] = MVS_Boule(data, camera, params, options
     
     [min_vals,min_idx] = min(Scores,[],2);
 	test = find(min_vals<Inf);
-	reconstructedPoints = diopter.points(usedDiopterPointsMain(test),:) + min_idx(test).*step(test,:);
+	reconstructedPoints = interface.points(usedInterfacePointsMain(test),:) + min_idx(test).*step(test,:);
     colors = ones(size(reconstructedPoints));
 end
