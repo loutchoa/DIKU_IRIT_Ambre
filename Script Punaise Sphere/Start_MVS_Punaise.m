@@ -1,8 +1,8 @@
 clear variables ;
 
 %%%%%% PARAMETRES %%%%%%%%
-Nb_De_Faces = 600 ;
-Nb_De_Tranches = 200 ;
+Nb_De_Faces = 50 ;
+Nb_De_Tranches = 50 ;
 Taille_Fenetre_SAD = 3 ; % 3*3
 Profondeur = 20 ;
 Output_Name = "Punaise_Sphere_" + int2str(Nb_De_Faces) + "_" + int2str(Nb_De_Tranches) + ".mat" ;
@@ -12,7 +12,7 @@ Output_Name = "Punaise_Sphere_" + int2str(Nb_De_Faces) + "_" + int2str(Nb_De_Tra
 % Echantillonage de la surface de l'ambre + Barycentre ;
 [Barycentre, Pts_Surface_Ambre] = Calculer_Coord_Pts_Sphere(Nb_De_Faces) ;
 
-load('Imgs_Et_Masques_Punaise_Boule15.mat') ;
+load('Imgs_Et_Masques_Punaise_1.5.mat') ;
 load('Cameras.mat') ;
 n_Air = 1 ; n_Verre = 1.5 ; % n_Ambre = 1.541 ;
 
@@ -87,4 +87,4 @@ nuage_points_3D = pointCloud(Nuage,'Color',uint8(Couleur));
 pcshow(nuage_points_3D,'VerticalAxis','y','VerticalAxisDir','down','MarkerSize',45);
 axis equal
 
-save(Output_Name, 'Nuage_1', 'Nuage_2', 'Nuage_3', 'Nuage_4', 'Nuage', 'Couleur_1', 'Couleur_2', 'Couleur_3', 'Couleur_4', 'Couleur', 'nuage_points_3D') ;
+% save(Output_Name, 'Nuage_1', 'Nuage_2', 'Nuage_3', 'Nuage_4', 'Nuage', 'Couleur_1', 'Couleur_2', 'Couleur_3', 'Couleur_4', 'Couleur', 'nuage_points_3D') ;
