@@ -28,7 +28,9 @@ camera.t = t;
 
 load('Imgs_Et_Masques_Punaise_1.5.mat') ;
 
-n_Air = 1 ; n_Verre = 1.5 ; % n_Ambre = 1.541 ;
+% Indexes of refraction :
+IOR_1 = 1;   % Air
+IOR_2 = 1.5; % Glass - Ambre IOR is 1.541
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Evaluate visible interface points for each camera
@@ -53,7 +55,7 @@ tic
 [Nuage, Couleur] = MVS_Boule(Num_Img_Ref , Liste_Num_Img_Ctrl, ...
     Liste_Num_Imgs_Temoins, interface.center, Imgs, Masques_Imgs, Pts_Dioptres, ...
     Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs, ...
-    camera.t, Nb_De_Tranches, n_Air, n_Verre, Taille_Fenetre_SAD, Profondeur) ;
+    camera.t, Nb_De_Tranches, IOR_1, IOR_2, Taille_Fenetre_SAD, Profondeur) ;
 toc
 
 % Affichage
