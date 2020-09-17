@@ -26,7 +26,7 @@ n_Air = 1 ; n_Verre = 1.5 ; % n_Ambre = 1.541 ;
 % Evaluate visible interface points for each camera
 
 Nb_Imgs = size(Imgs, 4) ;
-[Pts_Dioptres, Booleen_Pts_Dioptres] = Calculer_Dioptres(Position_Camera, interface.center, interface.points);
+[Pts_Dioptres, indPointsDioptres] = interfaceVisiblePoints(Position_Camera, interface);
 
 % Matrice de calibrage K
 [Nb_De_Lignes, Nb_De_Colonnes, ~, ~] = size(Imgs) ;
