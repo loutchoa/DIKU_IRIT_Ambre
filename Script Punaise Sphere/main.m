@@ -8,10 +8,12 @@ interface.facesNumber = 50;
 interface.radius = 9;
 interface.center = [0; 0; 100];
 
-Nb_De_Tranches = 50 ;
+% Options :
+numberOfSteps = 100 ;
+depthMax = 20 ;
+
 Taille_Fenetre_SAD = 3 ; % 3*3
-Profondeur = 20 ;
-Output_Name = "Punaise_Sphere_" + int2str(interface.facesNumber) + "_" + int2str(Nb_De_Tranches) + ".mat" ;
+Output_Name = "Punaise_Sphere_" + int2str(interface.facesNumber) + "_" + int2str(numberOfSteps) + ".mat" ;
 
 % Camera parameters :
 camera.sensorLength = 36;
@@ -55,7 +57,7 @@ tic
 [Nuage, Couleur] = MVS_Boule(Num_Img_Ref , Liste_Num_Img_Ctrl, ...
     Liste_Num_Imgs_Temoins, interface.center, Imgs, Masques_Imgs, Pts_Dioptres, ...
     Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs, ...
-    camera.t, Nb_De_Tranches, IOR_1, IOR_2, Taille_Fenetre_SAD, Profondeur) ;
+    camera.t, numberOfSteps, IOR_1, IOR_2, Taille_Fenetre_SAD, depthMax) ;
 toc
 
 % Affichage
