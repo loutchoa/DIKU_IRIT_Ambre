@@ -1,4 +1,5 @@
-clear variables ;
+clear all;
+close all;
 
 %%%%%% PARAMETRES %%%%%%%%
 % Interface's properties
