@@ -38,7 +38,7 @@ Nb_Imgs = size(Imgs, 4) ;
 % Matrice de calibrage K
 [Nb_De_Lignes, Nb_De_Colonnes, ~, ~] = size(Imgs) ;
 Sensor_Length = 36 ;
-camera.K = Calculer_Matrice_De_Calibrage(Nb_De_Lignes, Nb_De_Colonnes, Sensor_Length) ;
+camera.K = Calculer_Matrice_De_Calibrage(Nb_De_Lignes, Nb_De_Colonnes, camera.sensorLength) ;
 
 % Img 2 Dioptre
 [Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs] = Calculer_Imgs_2_Dioptres(...
