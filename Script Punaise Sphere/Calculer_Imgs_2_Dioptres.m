@@ -27,11 +27,8 @@ function [Masque_Img_Projections_Pts_Dioptre, Img_2_Dioptre, Dioptre_2_Img] = Ca
     Projections_Pts_Dioptre = Pts_Dioptre_Repere_Camera./Pts_Dioptre_Repere_Camera(3,:) ;
 
     % Pixels de l'Image sur lesquels tombent les projections
-    Projections_Pts_Dioptre = [Projections_Pts_Dioptre(2, :) ;
-                               Projections_Pts_Dioptre(1, :) ;
-                               Projections_Pts_Dioptre(3, :)];
     Coord_Pixels = Matrice_De_Calibrage*Projections_Pts_Dioptre ;
-    Coord_Pixels = round(Coord_Pixels(1:2, :))';
+    Coord_Pixels = round(Coord_Pixels(2:-1:1, :))'; % Coord_Pixels = [Ligne, Colonne]
 
     Masque_Img_Projections_Pts_Dioptre = zeros(size(Masque_Img), 'logical') ;
     [Nb_Lignes, Nb_Colonnes] = size(Masque_Img) ;
