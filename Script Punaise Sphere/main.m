@@ -15,6 +15,8 @@ depthMax = 20 ;
 Taille_Fenetre_SAD = 3 ; % 3*3
 Output_Name = "Punaise_Sphere_" + int2str(interface.facesNumber) + "_" + int2str(numberOfSteps) + ".mat" ;
 
+load('Imgs_Et_Masques_Punaise_1.5.mat');
+
 % Camera parameters :
 camera.sensorLength = 36;
 camera.focal = 90; %% focal in mm
@@ -28,21 +30,17 @@ camera.t = t;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [interface.points, interface.normals] = interfaceSampling(interface);
 
-load('Imgs_Et_Masques_Punaise_1.5.mat') ;
-
 % Indexes of refraction :
 IOR_1 = 1;   % Air
 IOR_2 = 1.5; % Glass - Ambre IOR is 1.541
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Evaluate visible interface points for each camera
-Nb_Imgs = size(Imgs, 4) ;
 [Pts_Dioptres, indPointsDioptres] = interfaceVisiblePoints(camera.t, interface);
 
 % Matrice de calibrage K
-[Nb_De_Lignes, Nb_De_Colonnes, ~, ~] = size(Imgs) ;
-Sensor_Length = 36 ;
-camera.K = Calculer_Matrice_De_Calibrage(Nb_De_Lignes, Nb_De_Colonnes, camera.sensorLength) ;
+[nb_rows, nb_col, nb_ch, nb_im] = size(Imgs);
+camera.K = Calculer_Matrice_De_Calibrage(nb_rows, nb_col, camera.sensorLength) ;
 
 % Img 2 Dioptre
 [Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs] = Calculer_Imgs_2_Dioptres(...
