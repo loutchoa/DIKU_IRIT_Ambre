@@ -14,33 +14,29 @@ function [Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Img
 end
 
 
-function [Masque_Img_Projections_Pts_Dioptre, Img_2_Dioptre, Dioptre_2_Img] = Calculer_Img_2_Dioptre(...
+function [interface_mask, Img_2_Interf, Interf_2_Img] = Calculer_Img_2_Dioptre(...
     Pts_Dioptre, R, t, Matrice_De_Calibrage, Masque_Img)
     
     Nb_Pts_Dioptre = size(Pts_Dioptre, 1) ;
 
-    % Positions des points du dioptre dans le repère Caméra
-    Pts_Dioptre_Repere_Camera = R*(Pts_Dioptre' - repmat(t, 1, Nb_Pts_Dioptre)) ;
+    interfacePointsCamFrame = R*(Pts_Dioptre' - repmat(t, 1, Nb_Pts_Dioptre));
+	interfacePointsCamFrame = Matrice_De_Calibrage*(interfacePointsCamFrame./interfacePointsCamFrame(3,:));
+	Interf_2_Img = [round(interfacePointsCamFrame(2,:))' round(interfacePointsCamFrame(1,:))'];
 
-    % Positions des projections des points du dioptre sur le plan
-    % image dans le repère Caméra
-    Projections_Pts_Dioptre = Pts_Dioptre_Repere_Camera./Pts_Dioptre_Repere_Camera(3,:) ;
-
-    % Pixels de l'Image sur lesquels tombent les projections
-    Coord_Pixels = Matrice_De_Calibrage*Projections_Pts_Dioptre ;
-    Coord_Pixels = round(Coord_Pixels(2:-1:1, :))'; % Coord_Pixels = [Ligne, Colonne]
-
-    Masque_Img_Projections_Pts_Dioptre = zeros(size(Masque_Img), 'logical') ;
+    interface_mask = zeros(size(Masque_Img), 'logical') ;
     [Nb_Lignes, Nb_Colonnes] = size(Masque_Img) ;
-    Img_2_Dioptre = zeros(Nb_Lignes, Nb_Colonnes, 3) ;
-    for k = 1:Nb_Pts_Dioptre
-        i = Coord_Pixels(k,1) ;
-        j = Coord_Pixels(k,2) ;
-        if (1 <= i) && (i <= Nb_Lignes) && (1 <= j) && (j <= Nb_Colonnes)
-            Masque_Img_Projections_Pts_Dioptre(i, j) = 1 ;
-            Img_2_Dioptre(i, j, :) = Pts_Dioptre(k, :) ;
-        end
-    end
-    Masque_Img_Projections_Pts_Dioptre = Masque_Img .* Masque_Img_Projections_Pts_Dioptre ;
-    Dioptre_2_Img = Coord_Pixels ;
+    
+    usedPixels = sub2ind([Nb_Lignes Nb_Colonnes], Interf_2_Img(:,1),Interf_2_Img(:,2));
+    interface_mask(usedPixels) = 1;
+    [usedPixels, usedDiopterPoints, ~] = unique(usedPixels,'rows','stable');
+ 
+    interface_mask = Masque_Img .* interface_mask ;
+    imask = find(interface_mask);
+    
+    [usedPixels, indexes] = intersect(usedPixels, imask);
+	usedDiopterPoints = usedDiopterPoints(indexes);
+	
+    Img_2_Interf = zeros(Nb_Lignes*Nb_Colonnes, 3);
+    Img_2_Interf(usedPixels,:) = Pts_Dioptre(usedDiopterPoints,:);
+    Img_2_Interf = reshape(Img_2_Interf, [Nb_Lignes, Nb_Colonnes, 3]);
 end
