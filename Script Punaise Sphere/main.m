@@ -12,6 +12,8 @@ Taille_Fenetre_SAD = 3 ; % 3*3
 Profondeur = 20 ;
 Output_Name = "Punaise_Sphere_" + int2str(interface.facesNumber) + "_" + int2str(Nb_De_Tranches) + ".mat" ;
 
+
+load('data/Cameras.mat');
 %%%%%%%%% DONNEES %%%%%%%%%%%%%%
 
 %% Get interface points and normals :
@@ -19,7 +21,7 @@ Output_Name = "Punaise_Sphere_" + int2str(interface.facesNumber) + "_" + int2str
 [interface.points, interface.normals] = interfaceSampling(interface);
 
 load('Imgs_Et_Masques_Punaise_1.5.mat') ;
-load('Cameras.mat') ;
+
 n_Air = 1 ; n_Verre = 1.5 ; % n_Ambre = 1.541 ;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
