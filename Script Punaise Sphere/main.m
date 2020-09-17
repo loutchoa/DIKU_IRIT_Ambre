@@ -1,7 +1,7 @@
 clear variables ;
 
 %%%%%% PARAMETRES %%%%%%%%
-% Diopter's properties
+% Interface's properties
 interface.shape = 'sphere';
 interface.facesNumber = 50;
 interface.radius = 9;
@@ -23,8 +23,8 @@ load('Cameras.mat') ;
 n_Air = 1 ; n_Verre = 1.5 ; % n_Ambre = 1.541 ;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Evaluate visible interface points for each camera
 
-% Dioptre pour chaque Camera
 Nb_Imgs = size(Imgs, 4) ;
 [Pts_Dioptres, Booleen_Pts_Dioptres] = Calculer_Dioptres(Position_Camera, interface.center, interface.points);
 
