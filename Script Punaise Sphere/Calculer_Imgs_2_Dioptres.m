@@ -37,8 +37,8 @@ function [Masque_Img_Projections_Pts_Dioptre, Img_2_Dioptre, Dioptre_2_Img] = Ca
         i = Coord_Pixels(k,1) ;
         j = Coord_Pixels(k,2) ;
         if (1 <= i) && (i <= Nb_Lignes) && (1 <= j) && (j <= Nb_Colonnes)
-            Masque_Img_Projections_Pts_Dioptre(Coord_Pixels(k,1), Coord_Pixels(k,2)) = 1 ;
-            Img_2_Dioptre(Coord_Pixels(k,1), Coord_Pixels(k,2), :) = Pts_Dioptre(k, :) ;
+            Masque_Img_Projections_Pts_Dioptre(i, j) = 1 ;
+            Img_2_Dioptre(i, j, :) = Pts_Dioptre(k, :) ;
         end
     end
     Masque_Img_Projections_Pts_Dioptre = Masque_Img .* Masque_Img_Projections_Pts_Dioptre ;
