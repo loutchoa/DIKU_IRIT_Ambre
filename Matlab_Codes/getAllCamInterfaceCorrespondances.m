@@ -9,7 +9,7 @@ function [Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Img
     Dioptres_2_Imgs = cell(Nb_Imgs, 1);
 
     for i = 1:Nb_Imgs
-        [Masque_Img_Projections_Pts_Dioptre_i, Img_2_Dioptre_i, Dioptre_2_Img_i, usedDiopterPoints_i] = getCamDInterfaceCorrespondances(...
+        [Masque_Img_Projections_Pts_Dioptre_i, Img_2_Dioptre_i, Dioptre_2_Img_i, usedDiopterPoints_i] = getCamInterfaceCorrespondances(...
             camera.visiblePoints{i}, camera.R(:, :, i), camera.t(i, :)', camera.K, Masques_Imgs(:, :, i)) ;
         Masques_Imgs_Projections_Pts_Dioptres(:, :, i) = Masque_Img_Projections_Pts_Dioptre_i ;
         Imgs_2_Dioptres(:, :, :, i) = Img_2_Dioptre_i ;
@@ -19,7 +19,7 @@ function [Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Img
 end
 
 
-function [diopter_mask, Img_2_Dioptre, Dioptre_2_Img, usedDiopterPoints] = getCamDInterfaceCorrespondances(Pts_Dioptre, R, t, Matrice_De_Calibrage, mask)
+function [diopter_mask, Img_2_Dioptre, Dioptre_2_Img, usedDiopterPoints] = getCamInterfaceCorrespondances(Pts_Dioptre, R, t, Matrice_De_Calibrage, mask)
     
     Nb_Pts_Dioptre = size(Pts_Dioptre, 1) ;
   
