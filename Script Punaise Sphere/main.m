@@ -12,10 +12,15 @@ Taille_Fenetre_SAD = 3 ; % 3*3
 Profondeur = 20 ;
 Output_Name = "Punaise_Sphere_" + int2str(interface.facesNumber) + "_" + int2str(Nb_De_Tranches) + ".mat" ;
 
+% Camera parameters :
+camera.sensorLength = 36;
+camera.focal = 90; %% focal in mm
 
 load('data/Cameras.mat');
-%%%%%%%%% DONNEES %%%%%%%%%%%%%%
+camera.R = R;
+camera.t = t;
 
+%%%%%%%%% DONNEES %%%%%%%%%%%%%%
 %% Get interface points and normals :
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [interface.points, interface.normals] = interfaceSampling(interface);
@@ -26,18 +31,17 @@ n_Air = 1 ; n_Verre = 1.5 ; % n_Ambre = 1.541 ;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Evaluate visible interface points for each camera
-
 Nb_Imgs = size(Imgs, 4) ;
-[Pts_Dioptres, indPointsDioptres] = interfaceVisiblePoints(Position_Camera, interface);
+[Pts_Dioptres, indPointsDioptres] = interfaceVisiblePoints(camera.t, interface);
 
 % Matrice de calibrage K
 [Nb_De_Lignes, Nb_De_Colonnes, ~, ~] = size(Imgs) ;
 Sensor_Length = 36 ;
-Matrice_De_Calibrage = Calculer_Matrice_De_Calibrage(Nb_De_Lignes, Nb_De_Colonnes, Sensor_Length) ;
+camera.K = Calculer_Matrice_De_Calibrage(Nb_De_Lignes, Nb_De_Colonnes, Sensor_Length) ;
 
 % Img 2 Dioptre
 [Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs] = Calculer_Imgs_2_Dioptres(...
-    Pts_Dioptres, R, t, Matrice_De_Calibrage, Masques_Imgs) ;
+    Pts_Dioptres, camera.R, camera.t, camera.K, Masques_Imgs) ;
 
 
 % MVS 1
@@ -46,9 +50,9 @@ Liste_Num_Img_Ctrl = [] ;
 Liste_Num_Imgs_Temoins = [28, 29, 2, 3, 8] ;
 tic
 [Nuage, Couleur] = MVS_Boule(Num_Img_Ref , Liste_Num_Img_Ctrl, ...
-    Liste_Num_Imgs_Temoins, Barycentre, Imgs, Masques_Imgs, Pts_Dioptres, ...
+    Liste_Num_Imgs_Temoins, interface.center, Imgs, Masques_Imgs, Pts_Dioptres, ...
     Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs, ...
-    t, Nb_De_Tranches, n_Air, n_Verre, Taille_Fenetre_SAD, Profondeur) ;
+    camera.t, Nb_De_Tranches, n_Air, n_Verre, Taille_Fenetre_SAD, Profondeur) ;
 toc
 
 % Affichage
