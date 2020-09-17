@@ -28,7 +28,7 @@ n_Air = 1 ; n_Verre = 1.5 ; % n_Ambre = 1.541 ;
 % Dioptre pour chaque Camera
 Nb_Imgs = size(Imgs, 4) ;
 %[Pts_Dioptres, Booleen_Pts_Dioptres] = Calculer_Dioptres(...
-    Position_Camera, Barycentre, Pts_Surface_Ambre) ;
+%    Position_Camera, Barycentre, Pts_Surface_Ambre) ;
 [Pts_Dioptres, Booleen_Pts_Dioptres] = Calculer_Dioptres(Position_Camera, interface.center, interface.points);
 
 % Matrice de calibrage K
