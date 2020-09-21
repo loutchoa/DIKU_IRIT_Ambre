@@ -1,10 +1,10 @@
-function [Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs] = Calculer_Imgs_2_Dioptres(camera, Masques_Imgs)
+function [Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs] = getAllCorrespondances(camera, Masques_Imgs)
     [Nb_Lignes, Nb_Colonnes, Nb_Imgs] = size(Masques_Imgs) ;
     Masques_Imgs_Projections_Pts_Dioptres = zeros(size(Masques_Imgs), 'logical') ;
     Imgs_2_Dioptres = zeros(Nb_Lignes, Nb_Colonnes, 3, Nb_Imgs) ;
     Dioptres_2_Imgs = cell(Nb_Imgs, 1) ;
     for i = 1:Nb_Imgs
-        [Masque_Img_Projections_Pts_Dioptre_i, Img_2_Dioptre_i, Dioptre_2_Img_i] = Calculer_Img_2_Dioptre(...
+        [Masque_Img_Projections_Pts_Dioptre_i, Img_2_Dioptre_i, Dioptre_2_Img_i] = getCorrespondances(...
             camera.visiblePoints{i}, camera.R(:, :, i), camera.t(i, :)', camera.K, Masques_Imgs(:, :, i)) ;
         Masques_Imgs_Projections_Pts_Dioptres(:, :, i) = Masque_Img_Projections_Pts_Dioptre_i ;
         Imgs_2_Dioptres(:, :, :, i) = Img_2_Dioptre_i ;
@@ -13,7 +13,7 @@ function [Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Img
 end
 
 
-function [interface_mask, Img_2_Interf, Interf_2_Img] = Calculer_Img_2_Dioptre(Pts_Dioptre, R, t, K, Masque_Img)
+function [interface_mask, Img_2_Interf, Interf_2_Img] = getCorrespondances(Pts_Dioptre, R, t, K, Masque_Img)
     
     Nb_Pts_Dioptre = size(Pts_Dioptre, 1) ;
 

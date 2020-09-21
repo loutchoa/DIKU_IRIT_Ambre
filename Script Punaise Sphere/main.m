@@ -55,7 +55,7 @@ camera.K = evalK(nb_rows, nb_col, camera);
 [camera.visiblePoints, camera.visiblePointsIdx] = interfaceVisiblePoints(camera.t, interface);
 
 % Img 2 Interface
-[Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs] = Calculer_Imgs_2_Dioptres(camera, data.Masques_Imgs) ;
+[Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs] = getAllCorrespondances(camera, data.Masques_Imgs) ;
 
 % MVS
 tic
