@@ -57,7 +57,7 @@ function [Nuage, Couleur] = MVS_Boule(Ind_Last_Witness, ...
             Score = 0 ;
             Booleen_Break = 0 ;
             
-            for Numero_Image_Temoin = 2:length(size(Imgs,4))
+            for Numero_Image_Temoin = 2:size(Imgs,4)
                 % Position du point pij_prime dans le repère Monde
                 % i = Numero_Image_Temoin  ;
                 % tic
