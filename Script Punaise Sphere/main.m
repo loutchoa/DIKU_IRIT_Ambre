@@ -55,7 +55,7 @@ Masques_Imgs = Masques_Imgs(:, :, Used_Cameras_List) ;
 
 % Matrice de calibrage K
 [nb_rows, nb_col, nb_ch, nb_im] = size(Imgs);
-camera.K = Calculer_Matrice_De_Calibrage(nb_rows, nb_col, camera);
+camera.K = evalK(nb_rows, nb_col, camera);
 
 % Img 2 Dioptre
 [Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs] = Calculer_Imgs_2_Dioptres(...
