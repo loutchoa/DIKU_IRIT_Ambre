@@ -1,28 +1,17 @@
 function [Nuage, Couleur] = MVS_Boule(data, camera, interface, Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs, options, param);
     
-    Imgs = data.Imgs;
-    Masques_Imgs = data.Masques_Imgs;
-    Pts_Dioptres = camera.visiblePoints;
+    [nb_rows, nb_cols, nb_ch, nb_pict] = size(data.Imgs) ;
     
-    Nb_De_Tranches = options.numberOfSteps;
-    Taille_Fenetre_SAD = options.SADsize;
-    Profondeur = options.depthMax;
-    
-    n_Air = param.IOR_1;
-    n_Ambre = param.IOR_2;
-    
-    t = camera.t;
-    
-    Img_Ref = Imgs(:, :, :, 1);
-    Masque_Img_Ref = Masques_Imgs(:, :, 1);
+    Img_Ref = data.Imgs(:, :, :, 1);
+    Masque_Img_Ref = data.Masques_Imgs(:, :, 1);
     Masque_Proj_Ref = Masques_Imgs_Projections_Pts_Dioptres(:, :, 1);
     
     [Coord_Ligne, Coord_Colonnes] = find(Masque_Proj_Ref) ;
     Coord_Des_Pixels_A_Projeter = [Coord_Ligne, Coord_Colonnes] ;
     Nb_De_Pixels_A_Projeter = size(Coord_Des_Pixels_A_Projeter, 1) ;
     
-    N = (Taille_Fenetre_SAD - 1) / 2 ;
-    [Nb_De_Lignes, Nb_De_Colonnes, ~, ~] = size(Imgs) ;
+    N = (options.SADsize - 1) / 2 ;
+    
     Nuage = zeros(Nb_De_Pixels_A_Projeter, 3) ;
     Couleur = zeros(Nb_De_Pixels_A_Projeter, 3) ;
     Indice = 1 ;
@@ -48,49 +37,49 @@ function [Nuage, Couleur] = MVS_Boule(data, camera, interface, Masques_Imgs_Proj
         P0 = squeeze(Imgs_2_Dioptres(Coord_Pixel(1), Coord_Pixel(2), :, 1)) ;
         
         % Vecteur Directeur Unitaire du Rayon Incident
-        t_Ref = t(1, :)' ; % Position Camera de Reference
+        t_Ref = camera.t(1, :)' ; % Position Camera de Reference
         VD_Unitaire_Rayon_Incident = (P0 - t_Ref)/norm(P0 - t_Ref) ;
         
         % Vecteur Directeur du Rayon Refracte
         Normale_Au_Dioptre_Reference = (interface.center - P0)/norm(interface.center - P0) ;
         VD_Unitaire_Rayon_Refracte = ...
             Calculer_VD_Du_Rayon_Refracte(VD_Unitaire_Rayon_Incident, ...
-            Normale_Au_Dioptre_Reference, n_Air, n_Ambre) ;
+            Normale_Au_Dioptre_Reference, param.IOR_1, param.IOR_2) ;
         
-        Pmax = P0 + VD_Unitaire_Rayon_Refracte*Profondeur ;
-        Pas = (Pmax-P0) / Nb_De_Tranches ;
+        Pmax = P0 + VD_Unitaire_Rayon_Refracte*options.depthMax ;
+        Pas = (Pmax-P0) / options.numberOfSteps ;
         Meilleur_Score = Inf ;
         Booleen_Nuage_Updated = 0 ;
         
-        for Numero_Tranche = 1:Nb_De_Tranches
+        for Numero_Tranche = 1:options.numberOfSteps
             Pj = P0 + Numero_Tranche*Pas ; % j = Numero_Tranche
             Score = 0 ;
             Booleen_Break = 0 ;
             
-            for Numero_Image_Temoin = 2:size(Imgs,4)
+            for Numero_Image_Temoin = 2:nb_pict
                 % Position du point pij_prime dans le repère Monde
                 % i = Numero_Image_Temoin  ;
                 % tic
                 [~, Indice_pij_prime] = Calcul_de_pij_prime_Discret(...
-                    t(Numero_Image_Temoin, :)', Pj, ...
-                    Pts_Dioptres{Numero_Image_Temoin}, n_Air, n_Ambre) ;
+                    camera.t(Numero_Image_Temoin, :)', Pj, ...
+                    camera.visiblePoints{Numero_Image_Temoin}, param.IOR_1, param.IOR_2) ;
                 % toc
                 Dioptre_2_Img = Dioptres_2_Imgs{Numero_Image_Temoin} ;
                 pij = Dioptre_2_Img(Indice_pij_prime, :)' ;
                 
-                if (0 < pij(1)-N) && (pij(1)+N <= Nb_De_Lignes) && ...
-                   (0 < pij(2)-N) && (pij(2)+N <= Nb_De_Colonnes) && ...
-                   (Masques_Imgs(pij(1), pij(2), Numero_Image_Temoin))
+                if (0 < pij(1)-N) && (pij(1)+N <= nb_rows) && ...
+                   (0 < pij(2)-N) && (pij(2)+N <= nb_cols) && ...
+                   (data.Masques_Imgs(pij(1), pij(2), Numero_Image_Temoin))
                     if Numero_Image_Temoin > data.indLastWitness % Num_Camera_Ctrl
                         % Ne pas calculer de score
                     else
                         % Fenetre de (Taille_Fenetre_SAD*Taille_Fenetre_SAD)
                         % pixels autour du pixel de l'Image Temoin
                         Fenetre_Img_Temoin_ij = ...
-                            Imgs(pij(1)-N:pij(1)+N, ...
+                            data.Imgs(pij(1)-N:pij(1)+N, ...
                             pij(2)-N:pij(2)+N, :, Numero_Image_Temoin) ;
                         Fenetre_Masque_Img_Temoin_ij = ...
-                            Masques_Imgs(pij(1)-N:pij(1)+N, ...
+                            data.Masques_Imgs(pij(1)-N:pij(1)+N, ...
                             pij(2)-N:pij(2)+N, Numero_Image_Temoin) ;
                         Score_j = SAD(Fenetre_Img_Ref, Fenetre_Img_Temoin_ij, ...
                             Fenetre_Masque_Img_Ref, Fenetre_Masque_Img_Temoin_ij) ;
