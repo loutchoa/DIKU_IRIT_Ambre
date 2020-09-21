@@ -51,11 +51,11 @@ Masques_Imgs = Masques_Imgs(:, :, Used_Cameras_List) ;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Evaluate visible interface points for each camera
-[Pts_Dioptres, indPointsDioptres] = interfaceVisiblePoints(camera.t, interface);
+[camera.visiblePoints, camera.visiblePointsIdx] = interfaceVisiblePoints(camera.t, interface);
 
 % Matrice de calibrage K
 [nb_rows, nb_col, nb_ch, nb_im] = size(Imgs);
-camera.K = Calculer_Matrice_De_Calibrage(nb_rows, nb_col, camera);
+camera.K = evalK(nb_rows, nb_col, camera);
 
 % Img 2 Dioptre
 [Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs] = Calculer_Imgs_2_Dioptres(...
@@ -64,8 +64,8 @@ camera.K = Calculer_Matrice_De_Calibrage(nb_rows, nb_col, camera);
 
 % MVS 1
 tic
-[Nuage, Couleur] = MVS_Boule(Used_Cameras_List, Ind_Last_Witness, ...
-    interface.center, Imgs, Masques_Imgs, Pts_Dioptres, ...
+[Nuage, Couleur] = MVS_Boule(Ind_Last_Witness, ...
+    interface.center, Imgs, Masques_Imgs, camera.visiblePoints, ...
     Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs, ...
     camera.t, numberOfSteps, IOR_1, IOR_2, Taille_Fenetre_SAD, depthMax) ;
 toc
