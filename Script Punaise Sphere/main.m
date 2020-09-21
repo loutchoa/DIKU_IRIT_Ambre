@@ -59,7 +59,7 @@ camera.K = Calculer_Matrice_De_Calibrage(nb_rows, nb_col, camera);
 
 % Img 2 Dioptre
 [Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs] = Calculer_Imgs_2_Dioptres(...
-    Pts_Dioptres, camera.R, camera.t, camera.K, Masques_Imgs) ;
+    Pts_Dioptres, camera, Masques_Imgs) ;
 
 
 % MVS 1
