@@ -1,11 +1,21 @@
-function [Nuage, Couleur] = MVS_Boule(Ind_Last_Witness, ...
-    Barycentre, Imgs, Masques_Imgs, Pts_Dioptres, ...
-    Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs, ...
-    t, Nb_De_Tranches, n_Air, n_Ambre, Taille_Fenetre_SAD, Profondeur)
+function [Nuage, Couleur] = MVS_Boule(data, camera, interface, Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs, options, param);
     
-    Img_Ref = Imgs(:, :, :, 1) ;
-    Masque_Img_Ref = Masques_Imgs(:, :, 1) ;
-    Masque_Proj_Ref = Masques_Imgs_Projections_Pts_Dioptres(:, :, 1) ;
+    Imgs = data.Imgs;
+    Masques_Imgs = data.Masques_Imgs;
+    Pts_Dioptres = camera.visiblePoints;
+    
+    Nb_De_Tranches = options.numberOfSteps;
+    Taille_Fenetre_SAD = options.SADsize;
+    Profondeur = options.depthMax;
+    
+    n_Air = param.IOR_1;
+    n_Ambre = param.IOR_2;
+    
+    t = camera.t;
+    
+    Img_Ref = Imgs(:, :, :, 1);
+    Masque_Img_Ref = Masques_Imgs(:, :, 1);
+    Masque_Proj_Ref = Masques_Imgs_Projections_Pts_Dioptres(:, :, 1);
     
     [Coord_Ligne, Coord_Colonnes] = find(Masque_Proj_Ref) ;
     Coord_Des_Pixels_A_Projeter = [Coord_Ligne, Coord_Colonnes] ;
@@ -42,7 +52,7 @@ function [Nuage, Couleur] = MVS_Boule(Ind_Last_Witness, ...
         VD_Unitaire_Rayon_Incident = (P0 - t_Ref)/norm(P0 - t_Ref) ;
         
         % Vecteur Directeur du Rayon Refracte
-        Normale_Au_Dioptre_Reference = (Barycentre - P0)/norm(Barycentre - P0) ;
+        Normale_Au_Dioptre_Reference = (interface.center - P0)/norm(interface.center - P0) ;
         VD_Unitaire_Rayon_Refracte = ...
             Calculer_VD_Du_Rayon_Refracte(VD_Unitaire_Rayon_Incident, ...
             Normale_Au_Dioptre_Reference, n_Air, n_Ambre) ;
@@ -71,7 +81,7 @@ function [Nuage, Couleur] = MVS_Boule(Ind_Last_Witness, ...
                 if (0 < pij(1)-N) && (pij(1)+N <= Nb_De_Lignes) && ...
                    (0 < pij(2)-N) && (pij(2)+N <= Nb_De_Colonnes) && ...
                    (Masques_Imgs(pij(1), pij(2), Numero_Image_Temoin))
-                    if Numero_Image_Temoin > Ind_Last_Witness % Num_Camera_Ctrl
+                    if Numero_Image_Temoin > data.indLastWitness % Num_Camera_Ctrl
                         % Ne pas calculer de score
                     else
                         % Fenetre de (Taille_Fenetre_SAD*Taille_Fenetre_SAD)

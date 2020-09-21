@@ -13,8 +13,7 @@ function [Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Img
 end
 
 
-function [interface_mask, Img_2_Interf, Interf_2_Img] = Calculer_Img_2_Dioptre(...
-    Pts_Dioptre, R, t, K, Masque_Img)
+function [interface_mask, Img_2_Interf, Interf_2_Img] = Calculer_Img_2_Dioptre(Pts_Dioptre, R, t, K, Masque_Img)
     
     Nb_Pts_Dioptre = size(Pts_Dioptre, 1) ;
 
