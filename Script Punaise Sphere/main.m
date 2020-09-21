@@ -35,6 +35,21 @@ IOR_1 = 1;   % Air
 IOR_2 = 1.5; % Glass - Ambre IOR is 1.541
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Camera Selection
+Reference_Camera_Number = 1;
+Witness_Cameras_List = [28, 29, 2, 3];
+Ctrl_Cameras_List = [8];
+Used_Cameras_List = [Reference_Camera_Number, Witness_Cameras_List, Ctrl_Cameras_List];
+Ind_Last_Witness = size(Witness_Cameras_List, 1) + 1 ;
+
+camera.R = camera.R(:,:,Used_Cameras_List);
+camera.t = camera.t(Used_Cameras_List,:);
+
+Imgs = Imgs(:, :, :, Used_Cameras_List) ;
+Masques_Imgs = Masques_Imgs(:, :, Used_Cameras_List) ;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Evaluate visible interface points for each camera
 [Pts_Dioptres, indPointsDioptres] = interfaceVisiblePoints(camera.t, interface);
 
@@ -48,12 +63,9 @@ camera.K = Calculer_Matrice_De_Calibrage(nb_rows, nb_col, camera);
 
 
 % MVS 1
-Num_Img_Ref = 1 ;
-Liste_Num_Img_Ctrl = [] ;
-Liste_Num_Imgs_Temoins = [28, 29, 2, 3, 8] ;
 tic
-[Nuage, Couleur] = MVS_Boule(Num_Img_Ref , Liste_Num_Img_Ctrl, ...
-    Liste_Num_Imgs_Temoins, interface.center, Imgs, Masques_Imgs, Pts_Dioptres, ...
+[Nuage, Couleur] = MVS_Boule(Used_Cameras_List, Ind_Last_Witness, ...
+    interface.center, Imgs, Masques_Imgs, Pts_Dioptres, ...
     Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs, ...
     camera.t, numberOfSteps, IOR_1, IOR_2, Taille_Fenetre_SAD, depthMax) ;
 toc

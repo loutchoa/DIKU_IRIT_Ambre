@@ -1,11 +1,11 @@
-function [Nuage, Couleur] = MVS_Boule(Num_Img_Ref , Liste_Num_Img_Ctrl, ...
-    Liste_Num_Imgs_Temoins, Barycentre, Imgs, Masques_Imgs, Pts_Dioptres, ...
+function [Nuage, Couleur] = MVS_Boule(Used_Cameras_List, Ind_Last_Witness, ...
+    Barycentre, Imgs, Masques_Imgs, Pts_Dioptres, ...
     Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs, ...
     t, Nb_De_Tranches, n_Air, n_Ambre, Taille_Fenetre_SAD, Profondeur)
     
-    Img_Ref = Imgs(:, :, :, Num_Img_Ref) ;
-    Masque_Img_Ref = Masques_Imgs(:, :, Num_Img_Ref) ;
-    Masque_Proj_Ref = Masques_Imgs_Projections_Pts_Dioptres(:, :, Num_Img_Ref) ;
+    Img_Ref = Imgs(:, :, :, 1) ;
+    Masque_Img_Ref = Masques_Imgs(:, :, 1) ;
+    Masque_Proj_Ref = Masques_Imgs_Projections_Pts_Dioptres(:, :, 1) ;
     
     [Coord_Ligne, Coord_Colonnes] = find(Masque_Proj_Ref) ;
     Coord_Des_Pixels_A_Projeter = [Coord_Ligne, Coord_Colonnes] ;
@@ -35,10 +35,10 @@ function [Nuage, Couleur] = MVS_Boule(Num_Img_Ref , Liste_Num_Img_Ctrl, ...
             Masque_Img_Ref(Coord_Pixel(1)-N:Coord_Pixel(1)+N, ...
             Coord_Pixel(2)-N:Coord_Pixel(2)+N) ;
         
-        P0 = squeeze(Imgs_2_Dioptres(Coord_Pixel(1), Coord_Pixel(2), :, Num_Img_Ref)) ;
+        P0 = squeeze(Imgs_2_Dioptres(Coord_Pixel(1), Coord_Pixel(2), :, 1)) ;
         
         % Vecteur Directeur Unitaire du Rayon Incident
-        t_Ref = t(Num_Img_Ref, :)' ; % Position Camera de Reference
+        t_Ref = t(1, :)' ; % Position Camera de Reference
         VD_Unitaire_Rayon_Incident = (P0 - t_Ref)/norm(P0 - t_Ref) ;
         
         % Vecteur Directeur du Rayon Refracte
@@ -57,7 +57,7 @@ function [Nuage, Couleur] = MVS_Boule(Num_Img_Ref , Liste_Num_Img_Ctrl, ...
             Score = 0 ;
             Booleen_Break = 0 ;
             
-            for Numero_Image_Temoin = [Liste_Num_Img_Ctrl Liste_Num_Imgs_Temoins]
+            for Numero_Image_Temoin = 2:length(Used_Cameras_List)
                 % Position du point pij_prime dans le repère Monde
                 % i = Numero_Image_Temoin  ;
                 % tic
@@ -71,7 +71,7 @@ function [Nuage, Couleur] = MVS_Boule(Num_Img_Ref , Liste_Num_Img_Ctrl, ...
                 if (0 < pij(1)-N) && (pij(1)+N <= Nb_De_Lignes) && ...
                    (0 < pij(2)-N) && (pij(2)+N <= Nb_De_Colonnes) && ...
                    (Masques_Imgs(pij(1), pij(2), Numero_Image_Temoin))
-                    if ismember(Numero_Image_Temoin, Liste_Num_Img_Ctrl)
+                    if Numero_Image_Temoin > Ind_Last_Witness % Num_Camera_Ctrl
                         % Ne pas calculer de score
                     else
                         % Fenetre de (Taille_Fenetre_SAD*Taille_Fenetre_SAD)
