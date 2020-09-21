@@ -26,14 +26,10 @@ function [Nuage, Couleur] = MVS_Boule(data, camera, interface, Masques_Imgs_Proj
         Coord_Pixel = Coord_Des_Pixels_A_Projeter(Numero_Pixel, :)' ;
         
         % Fenetre de (Taille_Fenetre_SAD*Taille_Fenetre_SAD) pixels autour
-        % du pixel de l'Image De Reference
-        Fenetre_Img_Ref = ...
-            Img_Ref(Coord_Pixel(1)-N:Coord_Pixel(1)+N, ...
-            Coord_Pixel(2)-N:Coord_Pixel(2)+N, :) ;
-        Fenetre_Masque_Img_Ref = ...
-            Masque_Img_Ref(Coord_Pixel(1)-N:Coord_Pixel(1)+N, ...
-            Coord_Pixel(2)-N:Coord_Pixel(2)+N) ;
-        
+        % du pixel de l'Image De Reference        
+        ind_ref = sub2ind([nb_rows, nb_cols],Coord_Pixel(1),Coord_Pixel(2));
+        Fenetre_Img_Ref = data.imStereo(ind_ref, :, :, 1);
+                
         P0 = squeeze(Imgs_2_Dioptres(Coord_Pixel(1), Coord_Pixel(2), :, 1)) ;
         
         % Vecteur Directeur Unitaire du Rayon Incident
@@ -75,14 +71,9 @@ function [Nuage, Couleur] = MVS_Boule(data, camera, interface, Masques_Imgs_Proj
                     else
                         % Fenetre de (Taille_Fenetre_SAD*Taille_Fenetre_SAD)
                         % pixels autour du pixel de l'Image Temoin
-                        Fenetre_Img_Temoin_ij = ...
-                            data.Imgs(pij(1)-N:pij(1)+N, ...
-                            pij(2)-N:pij(2)+N, :, Numero_Image_Temoin) ;
-                        Fenetre_Masque_Img_Temoin_ij = ...
-                            data.Masques_Imgs(pij(1)-N:pij(1)+N, ...
-                            pij(2)-N:pij(2)+N, Numero_Image_Temoin) ;
-                        Score_j = SAD(Fenetre_Img_Ref, Fenetre_Img_Temoin_ij, ...
-                            Fenetre_Masque_Img_Ref, Fenetre_Masque_Img_Temoin_ij) ;
+                        ind_tem = sub2ind([nb_rows, nb_cols],pij(1),pij(2));
+						Fenetre_Img_Temoin_ij = data.imStereo(ind_tem, :, :, Numero_Image_Temoin);
+						Score_j = sum(abs(Fenetre_Img_Ref(:)-Fenetre_Img_Temoin_ij(:)));
                         Score = Score + Score_j ;
                     end
                 else
