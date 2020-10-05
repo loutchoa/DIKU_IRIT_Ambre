@@ -1,100 +1,66 @@
-function [Nuage, Couleur] = MVS_Boule(data, camera, interface, Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs, options, param);
+function [Nuage, Couleur] = MVS_Boule(data, camera, interface, interfacePoints2Pixels, options, param)
     
     [nb_rows, nb_cols, nb_ch, nb_pict] = size(data.Imgs) ;
-    
     Img_Ref = data.Imgs(:, :, :, 1);
-    Masque_Img_Ref = data.Masques_Imgs(:, :, 1);
-    Masque_Proj_Ref = Masques_Imgs_Projections_Pts_Dioptres(:, :, 1);
+    interfacePoints2Pixels_Ref = interfacePoints2Pixels{1} ;
+    Nb_De_Pixels_A_Projeter = size(interfacePoints2Pixels_Ref, 1) ;
+    % N = (options.SADsize - 1) / 2 ;
     
-    [Coord_Ligne, Coord_Colonnes] = find(Masque_Proj_Ref) ;
-    Coord_Des_Pixels_A_Projeter = [Coord_Ligne, Coord_Colonnes] ;
-    Nb_De_Pixels_A_Projeter = size(Coord_Des_Pixels_A_Projeter, 1) ;
+    Img_Ref_R = Img_Ref(:, :, 1) ;
+    Img_Ref_G = Img_Ref(:, :, 2) ;
+    Img_Ref_B = Img_Ref(:, :, 3) ;
+    pixels_ref = interfacePoints2Pixels_Ref(:, 2) ;
+    Couleur = [Img_Ref_R(pixels_ref) Img_Ref_G(pixels_ref) Img_Ref_B(pixels_ref)] ;
     
-    N = (options.SADsize - 1) / 2 ;
+    % Fenetre de (Taille_Fenetre_SAD*Taille_Fenetre_SAD) pixels autour
+    % du pixel de l'Image De Reference        
+    pixels_ref = repmat(pixels_ref, 1, options.numberOfSteps);
+    Fenetre_Img_Ref = data.imStereo(pixels_ref, :, :, 1);
     
-    Nuage = zeros(Nb_De_Pixels_A_Projeter, 3) ;
-    Couleur = zeros(Nb_De_Pixels_A_Projeter, 3) ;
-    Indice = 1 ;
-    
-    for Numero_Pixel = 1:Nb_De_Pixels_A_Projeter
-        % Afficher l'avancement de la MVS
-        if mod(Numero_Pixel, 100) == 0
-                fprintf(strcat(num2str(Numero_Pixel),'/', ...
-                    num2str(Nb_De_Pixels_A_Projeter),'\n'));
-        end
+    points_ref = interfacePoints2Pixels_Ref(:, 1);
+    P0 = interface.points(points_ref, :)';
 
-        Coord_Pixel = Coord_Des_Pixels_A_Projeter(Numero_Pixel, :)' ;
-        
-        % Fenetre de (Taille_Fenetre_SAD*Taille_Fenetre_SAD) pixels autour
-        % du pixel de l'Image De Reference        
-        ind_ref = sub2ind([nb_rows, nb_cols],Coord_Pixel(1),Coord_Pixel(2));
-        Fenetre_Img_Ref = data.imStereo(ind_ref, :, :, 1);
-                
-        P0 = squeeze(Imgs_2_Dioptres(Coord_Pixel(1), Coord_Pixel(2), :, 1)) ;
-        
-        % Vecteur Directeur Unitaire du Rayon Incident
-        t_Ref = camera.t(1, :)' ; % Position Camera de Reference
-        VD_Unitaire_Rayon_Incident = (P0 - t_Ref)/norm(P0 - t_Ref) ;
-        
-        % Vecteur Directeur du Rayon Refracte
-        Normale_Au_Dioptre_Reference = (interface.center - P0)/norm(interface.center - P0) ;
-        VD_Unitaire_Rayon_Refracte = ...
-            Calculer_VD_Du_Rayon_Refracte(VD_Unitaire_Rayon_Incident, ...
-            Normale_Au_Dioptre_Reference, param.IOR_1, param.IOR_2) ;
-        
-        Pmax = P0 + VD_Unitaire_Rayon_Refracte*options.depthMax ;
-        Pas = (Pmax-P0) / options.numberOfSteps ;
-        Meilleur_Score = Inf ;
-        Booleen_Nuage_Updated = 0 ;
-        
-        for Numero_Tranche = 1:options.numberOfSteps
-            Pj = P0 + Numero_Tranche*Pas ; % j = Numero_Tranche
-            Score = 0 ;
-            Booleen_Break = 0 ;
-            
-            for Numero_Image_Temoin = 2:nb_pict
-                % Position du point pij_prime dans le repère Monde
-                % i = Numero_Image_Temoin  ;
-                % tic
-                [~, Indice_pij_prime] = Calcul_de_pij_prime_Discret(...
-                    camera.t(Numero_Image_Temoin, :)', Pj, ...
-                    camera.visiblePoints{Numero_Image_Temoin}, param.IOR_1, param.IOR_2) ;
-                % toc
-                Dioptre_2_Img = Dioptres_2_Imgs{Numero_Image_Temoin} ;
-                pij = Dioptre_2_Img(Indice_pij_prime, :)' ;
-                
-                if (0 < pij(1)-N) && (pij(1)+N <= nb_rows) && ...
-                   (0 < pij(2)-N) && (pij(2)+N <= nb_cols) && ...
-                   (data.Masques_Imgs(pij(1), pij(2), Numero_Image_Temoin))
-                    if Numero_Image_Temoin > data.indLastWitness % Num_Camera_Ctrl
-                        % Ne pas calculer de score
-                    else
-                        % Fenetre de (Taille_Fenetre_SAD*Taille_Fenetre_SAD)
-                        % pixels autour du pixel de l'Image Temoin
-                        ind_tem = sub2ind([nb_rows, nb_cols],pij(1),pij(2));
-						Fenetre_Img_Temoin_ij = data.imStereo(ind_tem, :, :, Numero_Image_Temoin);
-						Score_j = sum(abs(Fenetre_Img_Ref(:)-Fenetre_Img_Temoin_ij(:)));
-                        Score = Score + Score_j ;
-                    end
-                else
-                    Booleen_Break = 1 ;
-                    break
-                end
-            end
-            
-            if (Booleen_Break == 0) && (Score < Meilleur_Score)
-                Booleen_Nuage_Updated = 1 ;
-                Meilleur_Score = Score ;
-                Nuage(Indice,:) = Pj';
-                Couleur(Indice,:) = Img_Ref(Coord_Pixel(1), Coord_Pixel(2), :) ;
-            end
-        end
-        
-        if Booleen_Nuage_Updated == 1
-            Indice = Indice + 1 ;
-        end
-    end
+    % Vecteur Directeur Unitaire du Rayon Incident
+    t_Ref = camera.t(1, :)' ; % Position Camera de Reference
+    VD_Unitaire_Rayon_Incident = P0 - repmat(t_Ref, 1, Nb_De_Pixels_A_Projeter);
+    euclideanNorm = sqrt(sum(VD_Unitaire_Rayon_Incident.^2, 1)) ;
+    VD_Unitaire_Rayon_Incident = VD_Unitaire_Rayon_Incident ./ euclideanNorm ;
     
-    Nuage = Nuage(1:Indice-1,:) ;
-    Couleur = Couleur(1:Indice-1,:) ;
+    % Vecteur Directeur du Rayon Refracte
+    Normale_Au_Dioptre_Reference = interface.normals(points_ref, :)' ;
+    VD_Unitaire_Rayon_Refracte = ...
+        Calculer_VD_Du_Rayon_Refracte(VD_Unitaire_Rayon_Incident, ...
+        Normale_Au_Dioptre_Reference, param.IOR_1, param.IOR_2) ;
+    
+    Pmax = P0 + VD_Unitaire_Rayon_Refracte*options.depthMax ;
+    Pas = (Pmax-P0) ./ options.numberOfSteps ;
+    
+    P0 = repmat(P0, 1, 1, options.numberOfSteps) ;
+    Numero_Tranche = repmat(reshape(1:options.numberOfSteps, 1, 1, []), 3, Nb_De_Pixels_A_Projeter, 1)  ;
+    Pas = repmat(Pas, 1, 1, options.numberOfSteps) ;
+    Pk = P0 + Numero_Tranche.*Pas ;
+    
+    Score = zeros(Nb_De_Pixels_A_Projeter, options.numberOfSteps) ;
+    
+    for Numero_Image_Temoin = 2:nb_pict
+        P_barre = Calcul_Plus_Court_Chemin(Numero_Image_Temoin, Pk, camera, interface, param) ;
+        interfacePoints2Pixels_Temoin = interfacePoints2Pixels{Numero_Image_Temoin} ;
+        [Bool, index] = ismember(P_barre, interfacePoints2Pixels_Temoin(:, 1)) ;
+        
+        if Numero_Image_Temoin <= data.indLastWitness
+            index(index==0) = 1 ;
+            pixels_tem = interfacePoints2Pixels_Temoin(index, 2) ;
+            Fenetre_Img_Temoin = data.imStereo(pixels_tem, :, :, Numero_Image_Temoin);
+            SAD_tem = sum(sum(abs(Fenetre_Img_Ref - Fenetre_Img_Temoin), 2), 3) ;
+            SAD_tem = reshape(SAD_tem, size(index)) ;
+        else
+            SAD_tem = zeros(Nb_De_Pixels_A_Projeter, options.numberOfSteps) ;
+        end
+        SAD_tem(Bool==0) = Inf ;
+        Score = Score + SAD_tem ;
+    end
+    [bestMatchScore, bestMatchIndex] = min(Score, [], 2) ;
+    Nuage = Pk(:, sub2ind([Nb_De_Pixels_A_Projeter, options.numberOfSteps], 1:Nb_De_Pixels_A_Projeter, bestMatchIndex'))' ;
+    Nuage(bestMatchScore == Inf, :) = [] ;
+    Couleur(bestMatchScore == Inf, :) = [] ;
 end
