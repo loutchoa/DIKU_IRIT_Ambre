@@ -1,10 +1,9 @@
 function [Nuage, Couleur] = MVS_Boule(data, camera, interface, interfacePoints2Pixels, options, param)
     
-    [nb_rows, nb_cols, nb_ch, nb_pict] = size(data.Imgs) ;
+    [~, ~, ~, nb_pict] = size(data.Imgs) ;      % [nb_rows, nb_cols, nb_ch, nb_pict]
     Img_Ref = data.Imgs(:, :, :, 1);
     interfacePoints2Pixels_Ref = interfacePoints2Pixels{1} ;
     Nb_De_Pixels_A_Projeter = size(interfacePoints2Pixels_Ref, 1) ;
-    % N = (options.SADsize - 1) / 2 ;
     
     Img_Ref_R = Img_Ref(:, :, 1) ;
     Img_Ref_G = Img_Ref(:, :, 2) ;

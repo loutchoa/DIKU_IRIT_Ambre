@@ -51,12 +51,6 @@ camera.R = R(:,:,usedCam);
 camera.t = t(usedCam,:);
 camera.K = evalK(nb_rows, nb_col, camera);
 
-% Evaluate visible interface points for each camera
-% [camera.visiblePoints, camera.visiblePointsIdx] = interfaceVisiblePoints(camera.t, interface);
-
-% Img 2 Interface
-% [Masques_Imgs_Projections_Pts_Dioptres, Imgs_2_Dioptres, Dioptres_2_Imgs] = getAllCorrespondances(camera, data.Masques_Imgs) ;
-
 [camera.visiblePoints, interfacePoints2Pixels] = getCorrespondances(camera, interface, data);
 
 %% Prepare Stereo Data
