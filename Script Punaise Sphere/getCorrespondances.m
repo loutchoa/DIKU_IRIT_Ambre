@@ -1,3 +1,16 @@
+%% Find points of the interface which are visible from each camera
+%% This first version is very naive : it selects the half sphere which is facing the camera
+
+%% Input : 
+%%    - cameraCenter : object as constructed in main.m
+%%    - interface : object as constructed in main.m
+%%    - data : object as constructed in main.m
+%% Output : 
+%%    - visiblePoints : index of interface points which are visible from the camera
+%%    - interfacePoints2Pixels(:, 1) : subset of visiblePoints. Interface points whose
+%%      projection on the camera plane is inside the mask.
+%%    - interfacePoints2Pixels(:, 2) : index of the pixel associated to the projected point
+
 function [visiblePoints, interfacePoints2Pixels] = getCorrespondances(camera, interface, data)
     Nb_Imgs = size(camera.t, 1);
     visiblePoints = cell(Nb_Imgs, 1);
@@ -20,17 +33,3 @@ function [visiblePoints, interfacePoints2Pixels] = getCorrespondances(camera, in
         interfacePoints2Pixels{i} = [visiblePoints{i}(indexes) usedPixels] ;
     end
 end
-
-
-%% BROUILLON
-
-% interface_mask = zeros(nb_rows, nb_col, 'logical') ;
-% interface_mask(usedPixels) = 1;
-% interface_mask = data.Masques_Imgs(:, :, i) .* interface_mask ;
-% imask = find(interface_mask);
-% [usedPixels, indexes] = intersect(usedPixels, imask);
-% [usedPixels, usedDiopterPoints, ~] = unique(usedPixels,'rows','stable');
-% usedDiopterPoints = usedDiopterPoints(indexes);
-% Img_2_Interf = zeros(nb_rows*nb_col, 1);
-% Img_2_Interf(usedPixels,:) = visiblePointsIdx(usedDiopterPoints);
-% Img_2_Interf = reshape(Img_2_Interf, [nb_rows, nb_col]);

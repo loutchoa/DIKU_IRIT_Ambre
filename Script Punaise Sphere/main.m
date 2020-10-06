@@ -26,7 +26,6 @@ camera.focal = 90; %% focal in mm
 % Options :
 options.numberOfSteps = 100 ;
 options.depthMax = 20 ;
-options.SADsize = 3 ; % 3*3
 Output_Name = "Punaise_Sphere_" + int2str(interface.facesNumber) + "_" + int2str(options.numberOfSteps) + ".mat" ;
 
 % Files to load :
@@ -51,7 +50,7 @@ camera.R = R(:,:,usedCam);
 camera.t = t(usedCam,:);
 camera.K = evalK(nb_rows, nb_col, camera);
 
-[camera.visiblePoints, interfacePoints2Pixels] = getCorrespondances(camera, interface, data);
+[camera.visiblePoints, camera.interfacePoints2Pixels] = getCorrespondances(camera, interface, data);
 
 %% Prepare Stereo Data
 %% Pictures are "vectorized" and neighboring pixels are aligned along the 3rd dimension
@@ -79,7 +78,7 @@ end
 
 % MVS
 tic
-[Nuage, Couleur] = MVS_Boule(data, camera, interface, interfacePoints2Pixels, options, param);
+[Nuage, Couleur] = MVS_Boule(data, camera, interface, options, param);
 toc
 
 % Affichage

@@ -1,8 +1,8 @@
-function [Nuage, Couleur] = MVS_Boule(data, camera, interface, interfacePoints2Pixels, options, param)
+function [Nuage, Couleur] = MVS_Boule(data, camera, interface, options, param)
     
     [~, ~, ~, nb_pict] = size(data.Imgs) ;      % [nb_rows, nb_cols, nb_ch, nb_pict]
     Img_Ref = data.Imgs(:, :, :, 1);
-    interfacePoints2Pixels_Ref = interfacePoints2Pixels{1} ;
+    interfacePoints2Pixels_Ref = camera.interfacePoints2Pixels{1} ;
     Nb_De_Pixels_A_Projeter = size(interfacePoints2Pixels_Ref, 1) ;
     
     Img_Ref_R = Img_Ref(:, :, 1) ;
@@ -43,7 +43,7 @@ function [Nuage, Couleur] = MVS_Boule(data, camera, interface, interfacePoints2P
     
     for Numero_Image_Temoin = 2:nb_pict
         P_barre = Calcul_Plus_Court_Chemin(Numero_Image_Temoin, Pk, camera, interface, param) ;
-        interfacePoints2Pixels_Temoin = interfacePoints2Pixels{Numero_Image_Temoin} ;
+        interfacePoints2Pixels_Temoin = camera.interfacePoints2Pixels{Numero_Image_Temoin} ;
         [Bool, index] = ismember(P_barre, interfacePoints2Pixels_Temoin(:, 1)) ;
         
         if Numero_Image_Temoin <= data.indLastWitness
