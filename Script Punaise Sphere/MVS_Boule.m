@@ -29,7 +29,7 @@ function [Cloud, Color] = MVS_Boule(data, camera, interface, options, param)
     Normale_Au_Dioptre_Reference = interface.normals(points_ref, :)' ;
     VD_Unitaire_Rayon_Refracte = ...
         Calculer_VD_Du_Rayon_Refracte(VD_Unitaire_Rayon_Incident, ...
-        Normale_Au_Dioptre_Reference, param.IOR_1, param.IOR_2) ;
+        Normale_Au_Dioptre_Reference, param) ;
     
     Pmax = P0 + VD_Unitaire_Rayon_Refracte*options.depthMax ;
     Pas = (Pmax-P0) ./ options.numberOfSteps ;
