@@ -1,4 +1,4 @@
-function [Nuage, Couleur] = MVS_Boule(data, camera, interface, options, param)
+function [Cloud, Color] = MVS_Boule(data, camera, interface, options, param)
     
     [~, ~, ~, nb_pict] = size(data.Imgs) ;      % [nb_rows, nb_cols, nb_ch, nb_pict]
     Img_Ref = data.Imgs(:, :, :, 1);
@@ -9,7 +9,7 @@ function [Nuage, Couleur] = MVS_Boule(data, camera, interface, options, param)
     Img_Ref_G = Img_Ref(:, :, 2) ;
     Img_Ref_B = Img_Ref(:, :, 3) ;
     pixels_ref = interfacePoints2Pixels_Ref(:, 2) ;
-    Couleur = [Img_Ref_R(pixels_ref) Img_Ref_G(pixels_ref) Img_Ref_B(pixels_ref)] ;
+    Color = [Img_Ref_R(pixels_ref) Img_Ref_G(pixels_ref) Img_Ref_B(pixels_ref)] ;
     
     % Fenetre de (Taille_Fenetre_SAD*Taille_Fenetre_SAD) pixels autour
     % du pixel de l'Image De Reference        
@@ -59,7 +59,7 @@ function [Nuage, Couleur] = MVS_Boule(data, camera, interface, options, param)
         Score = Score + SAD_tem ;
     end
     [bestMatchScore, bestMatchIndex] = min(Score, [], 2) ;
-    Nuage = Pk(:, sub2ind([Nb_De_Pixels_A_Projeter, options.numberOfSteps], 1:Nb_De_Pixels_A_Projeter, bestMatchIndex'))' ;
-    Nuage(bestMatchScore == Inf, :) = [] ;
-    Couleur(bestMatchScore == Inf, :) = [] ;
+    Cloud = Pk(:, sub2ind([Nb_De_Pixels_A_Projeter, options.numberOfSteps], 1:Nb_De_Pixels_A_Projeter, bestMatchIndex'))' ;
+    Cloud(bestMatchScore == Inf, :) = [] ;
+    Color(bestMatchScore == Inf, :) = [] ;
 end

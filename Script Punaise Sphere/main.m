@@ -55,15 +55,13 @@ camera.K = evalK(nb_rows, nb_col, camera);
 %% Pictures are "vectorized" and neighboring pixels are aligned along the 3rd dimension
 data.imStereo = getStereoData(data);
 
-
-
 %% MVS
 tic
-[Nuage, Couleur] = MVS_Boule(data, camera, interface, options, param);
+[Cloud, Color] = MVS_Boule(data, camera, interface, options, param);
 toc
 
-%% Affichage
+%% Display Results
 figure(1)
-nuage_points_3D = pointCloud(Nuage,'Color',uint8(Couleur));
-pcshow(nuage_points_3D,'VerticalAxis','y','VerticalAxisDir','down','MarkerSize',45);
+PointsCloud3D = pointCloud(Cloud,'Color',uint8(Color));
+pcshow(PointsCloud3D,'VerticalAxis','y','VerticalAxisDir','down','MarkerSize',45);
 axis equal
