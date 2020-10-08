@@ -39,7 +39,7 @@ function [Cloud, Color] = MVS_Boule(data, camera, interface, options, param)
     Pas = repmat(Pas, 1, 1, options.numberOfSteps) ;
     Pk = P0 + Numero_Tranche.*Pas ;
     
-    Score = zeros(Nb_De_Pixels_A_Projeter, options.numberOfSteps) ;
+    SAD = zeros(Nb_De_Pixels_A_Projeter, options.numberOfSteps, nb_pict-1) ;
     
     for Numero_Image_Temoin = 2:nb_pict
         P_barre = Calcul_Plus_Court_Chemin(Numero_Image_Temoin, Pk, camera, interface, param) ;
@@ -49,6 +49,7 @@ function [Cloud, Color] = MVS_Boule(data, camera, interface, options, param)
         if Numero_Image_Temoin <= data.indLastWitness
             index(index==0) = 1 ;
             pixels_tem = interfacePoints2Pixels_Temoin(index, 2) ;
+            % pixels_tem = reshape(pixels_tem, size(index)) ;
             Fenetre_Img_Temoin = data.imStereo(pixels_tem, :, :, Numero_Image_Temoin);
             SAD_tem = sum(sum(abs(Fenetre_Img_Ref - Fenetre_Img_Temoin), 2), 3) ;
             SAD_tem = reshape(SAD_tem, size(index)) ;
@@ -56,8 +57,9 @@ function [Cloud, Color] = MVS_Boule(data, camera, interface, options, param)
             SAD_tem = zeros(Nb_De_Pixels_A_Projeter, options.numberOfSteps) ;
         end
         SAD_tem(Bool==0) = Inf ;
-        Score = Score + SAD_tem ;
+        SAD(:, :, Numero_Image_Temoin-1) = SAD_tem ;
     end
+    Score = sum(SAD, 3) ;
     [bestMatchScore, bestMatchIndex] = min(Score, [], 2) ;
     Cloud = Pk(:, sub2ind([Nb_De_Pixels_A_Projeter, options.numberOfSteps], 1:Nb_De_Pixels_A_Projeter, bestMatchIndex'))' ;
     Cloud(bestMatchScore == Inf, :) = [] ;
