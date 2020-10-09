@@ -1,4 +1,4 @@
-function [Cloud, Color] = MVS_Boule(data, camera, interface, options, param)
+function [Cloud, Color] = MVS(data, camera, interface, options, param)
     
     [~, ~, ~, nb_pict] = size(data.Imgs) ;      % [nb_rows, nb_cols, nb_ch, nb_pict]
     Img_Ref = data.Imgs(:, :, :, 1);
