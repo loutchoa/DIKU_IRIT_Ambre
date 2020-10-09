@@ -3,7 +3,7 @@ function [Cloud, Color] = MVS(data, camera, interface, options, param)
     [~, ~, ~, nb_pict] = size(data.Imgs) ;      % [nb_rows, nb_cols, nb_ch, nb_pict]
     Img_Ref = data.Imgs(:, :, :, 1);
     interfacePoints2Pixels_Ref = camera.interfacePoints2Pixels{1} ;
-    Nb_De_Pixels_A_Projeter = size(interfacePoints2Pixels_Ref, 1) ;
+    nb_pixels_ref = size(interfacePoints2Pixels_Ref, 1) ;
     
     Img_Ref_R = Img_Ref(:, :, 1) ;
     Img_Ref_G = Img_Ref(:, :, 2) ;
@@ -21,7 +21,7 @@ function [Cloud, Color] = MVS(data, camera, interface, options, param)
 
     % Vecteur Directeur Unitaire du Rayon Incident
     t_Ref = camera.t(1, :)' ; % Position Camera de Reference
-    VD_Unitaire_Rayon_Incident = P0 - repmat(t_Ref, 1, Nb_De_Pixels_A_Projeter);
+    VD_Unitaire_Rayon_Incident = P0 - repmat(t_Ref, 1, nb_pixels_ref);
     euclideanNorm = sqrt(sum(VD_Unitaire_Rayon_Incident.^2, 1)) ;
     VD_Unitaire_Rayon_Incident = VD_Unitaire_Rayon_Incident ./ euclideanNorm ;
     
@@ -35,16 +35,16 @@ function [Cloud, Color] = MVS(data, camera, interface, options, param)
     Pas = (Pmax-P0) ./ options.numberOfSteps ;
     
     P0 = repmat(P0, 1, 1, options.numberOfSteps) ;
-    Numero_Tranche = repmat(reshape(1:options.numberOfSteps, 1, 1, []), 3, Nb_De_Pixels_A_Projeter, 1)  ;
+    Numero_Tranche = repmat(reshape(1:options.numberOfSteps, 1, 1, []), 3, nb_pixels_ref, 1)  ;
     Pas = repmat(Pas, 1, 1, options.numberOfSteps) ;
     Pk = P0 + Numero_Tranche.*Pas ;
     
-    SAD = zeros(Nb_De_Pixels_A_Projeter, options.numberOfSteps, nb_pict-1) ;
+    SAD = zeros(nb_pixels_ref, options.numberOfSteps, nb_pict-1) ;
     
     for Numero_Image_Temoin = 2:nb_pict
-        P_barre = getPointOfRefraction(Numero_Image_Temoin, Pk, camera, interface, param) ;
+        P_bar = getPointOfRefraction(Numero_Image_Temoin, Pk, camera, interface, param) ;
         interfacePoints2Pixels_Temoin = camera.interfacePoints2Pixels{Numero_Image_Temoin} ;
-        [Bool, index] = ismember(P_barre, interfacePoints2Pixels_Temoin(:, 1)) ;
+        [Bool, index] = ismember(P_bar, interfacePoints2Pixels_Temoin(:, 1)) ;
         
         if Numero_Image_Temoin <= data.indLastWitness
             index(index==0) = 1 ;
@@ -54,14 +54,14 @@ function [Cloud, Color] = MVS(data, camera, interface, options, param)
             SAD_tem = sum(sum(abs(Fenetre_Img_Ref - Fenetre_Img_Temoin), 2), 3) ;
             SAD_tem = reshape(SAD_tem, size(index)) ;
         else
-            SAD_tem = zeros(Nb_De_Pixels_A_Projeter, options.numberOfSteps) ;
+            SAD_tem = zeros(nb_pixels_ref, options.numberOfSteps) ;
         end
         SAD_tem(Bool==0) = Inf ;
         SAD(:, :, Numero_Image_Temoin-1) = SAD_tem ;
     end
     Score = sum(SAD, 3) ;
     [bestMatchScore, bestMatchIndex] = min(Score, [], 2) ;
-    Cloud = Pk(:, sub2ind([Nb_De_Pixels_A_Projeter, options.numberOfSteps], 1:Nb_De_Pixels_A_Projeter, bestMatchIndex'))' ;
+    Cloud = Pk(:, sub2ind([nb_pixels_ref, options.numberOfSteps], 1:nb_pixels_ref, bestMatchIndex'))' ;
     Cloud(bestMatchScore == Inf, :) = [] ;
     Color(bestMatchScore == Inf, :) = [] ;
 end
