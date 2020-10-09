@@ -42,7 +42,7 @@ function [Cloud, Color] = MVS(data, camera, interface, options, param)
     SAD = zeros(Nb_De_Pixels_A_Projeter, options.numberOfSteps, nb_pict-1) ;
     
     for Numero_Image_Temoin = 2:nb_pict
-        P_barre = Calcul_Plus_Court_Chemin(Numero_Image_Temoin, Pk, camera, interface, param) ;
+        P_barre = getPointOfRefraction(Numero_Image_Temoin, Pk, camera, interface, param) ;
         interfacePoints2Pixels_Temoin = camera.interfacePoints2Pixels{Numero_Image_Temoin} ;
         [Bool, index] = ismember(P_barre, interfacePoints2Pixels_Temoin(:, 1)) ;
         

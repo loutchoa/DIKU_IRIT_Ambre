@@ -57,7 +57,7 @@ data.imStereo = getStereoData(data);
 
 %% MVS
 tic
-[Cloud, Color] = MVS_Boule(data, camera, interface, options, param);
+[Cloud, Color] = MVS(data, camera, interface, options, param);
 toc
 
 %% Display Results
