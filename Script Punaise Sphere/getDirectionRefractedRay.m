@@ -1,4 +1,4 @@
-function VD_Unitaire_Rayon_Refracte = Calculer_VD_Du_Rayon_Refracte(VD_Unitaire_Rayon_Incident, Normale_Dioptre, param)
+function VD_Unitaire_Rayon_Refracte = getDirectionRefractedRay(VD_Unitaire_Rayon_Incident, Normale_Dioptre, param)
     crossProduct = cross(VD_Unitaire_Rayon_Incident, Normale_Dioptre) ;
     dotProduct = dot(VD_Unitaire_Rayon_Incident, Normale_Dioptre) ;
     euclideanNorm = sqrt(sum(crossProduct.^2, 1)) ;
