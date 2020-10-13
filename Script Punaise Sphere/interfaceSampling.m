@@ -12,11 +12,11 @@ switch interface.shape
 
 	case 'sphere'
 		[X,Y,Z] = sphere(interface.facesNumber);
-		normals = [X(:) Y(:) Z(:)];
+		normals = single([X(:) Y(:) Z(:)]);
 		X = X*interface.radius + interface.center(1);
 		Y = Y*interface.radius + interface.center(2);
 		Z = Z*interface.radius + interface.center(3);
-		points = [X(:) Y(:) Z(:)];
+		points = single([X(:) Y(:) Z(:)]);
 	otherwise
 		disp('This case has not been implemented yet')
 	end

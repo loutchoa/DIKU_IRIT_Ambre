@@ -3,7 +3,7 @@
 
 function dataImStereo = getStereoData(data)
     [nb_rows, nb_col, nb_ch, nb_im] = size(data.Imgs);
-    dataImStereo = zeros(nb_rows*nb_col, 9, nb_ch, nb_im) ;
+    dataImStereo = zeros(nb_rows*nb_col, 9, nb_ch, nb_im, 'uint8') ;
     for picture = 1:nb_im
         antiMask = data.Masques_Imgs(:,:,picture) == 0;
         currentIm = data.Imgs(:,:,:,picture);
