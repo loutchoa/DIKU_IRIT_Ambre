@@ -12,10 +12,10 @@
 %%    - interfacePoints2Pixels(:, 2) : index of the pixel associated to the projected point
 
 function [visiblePoints, interfacePoints2Pixels] = getCorrespondances(camera, interface, data)
-    Nb_Imgs = size(camera.t, 1);
-    visiblePoints = cell(Nb_Imgs, 1);
-    interfacePoints2Pixels = cell(Nb_Imgs, 1);
-    for i = 1:Nb_Imgs
+    nb_pict = size(camera.t, 1);
+    visiblePoints = cell(nb_pict, 1);
+    interfacePoints2Pixels = cell(nb_pict, 1);
+    for i = 1:nb_pict
 		center2cam = camera.t(i, :)' - interface.center;
 		scalarProduct = interface.normals*center2cam;
 		visiblePoints{i} = find(scalarProduct > 0);
