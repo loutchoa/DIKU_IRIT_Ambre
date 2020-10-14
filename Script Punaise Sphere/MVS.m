@@ -54,7 +54,7 @@ function [Cloud, Color] = MVS(data, camera, interface, options, param)
         interfacePoints2Pixels_witn = camera.interfacePoints2Pixels{witnImg_number} ;
         [ismemberBool, index] = ismember(P_bar, interfacePoints2Pixels_witn(:, 1)) ;
         
-        if witnImg_number <= data.indLastWitness
+        if witnImg_number <= data.indLastWitness % Witness Img
             index(index==0) = 1 ;
             pixels_witn = interfacePoints2Pixels_witn(index, 2) ;
             % Usefull for debugging :
@@ -62,7 +62,7 @@ function [Cloud, Color] = MVS(data, camera, interface, options, param)
             Fenetre_Img_Temoin = data.imStereo(pixels_witn, :, :, witnImg_number);
             SAD_witn = sum(sum(abs(Fenetre_Img_Ref - Fenetre_Img_Temoin), 2), 3) ;
             SAD_witn = reshape(SAD_witn, size(index)) ;
-        else
+        else % Control Img
             SAD_witn = zeros(nb_pixels_ref, options.numberOfSteps) ;
         end
         SAD_witn(ismemberBool==0) = Inf ;

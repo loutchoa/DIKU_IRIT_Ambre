@@ -26,7 +26,7 @@ options.depthMax = single(20) ;
 % Files to load :
 load('data/Cameras.mat');
 load('data/Pic_Bunny_e_IOR1.5.mat');
-load('data/InterfaceEllipsoide2.mat')
+load('data/InterfaceEllipsoide5.mat');
 
 %% Use only selected cameras :
 usedCam = [refImg, witnImgs_list, ctrlImgs_list];

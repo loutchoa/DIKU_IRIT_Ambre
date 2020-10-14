@@ -1,5 +1,4 @@
-function P_bar = getPointOfRefraction(...
-    witnImg_number, Pk, camera, interface, param)
+function P_bar = getPointOfRefraction(witnImg_number, Pk, camera, interface, param)
 
     interfacePoints = interface.points(camera.visiblePoints{witnImg_number}, :)' ;
     nbInterfacePoints = size(interfacePoints, 2) ;
