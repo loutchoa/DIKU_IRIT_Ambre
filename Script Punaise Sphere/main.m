@@ -4,21 +4,15 @@ close all;
 
 %% Required information : to be provided by the user
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % Camera Selection
 refImg = 1;
 witnImgs_list = [28, 29, 2, 3];
 ctrlImgs_list = [8];
 
 % Indexes of refraction :
-
 param.IOR_1 = single(1);   % Air
-param.IOR_2 = single(1.5); % Glass - Ambre IOR is 1.541
-
-% Interface's properties
-interface.shape = 'sphere';
-interface.facesNumber = single(50);
-interface.radius = single(9);
-interface.center = single([0; 0; 100]);
+param.IOR_2 = single(1.5); % Glass - Amber IOR is 1.541
 
 % Camera parameters :
 camera.sensorLength = single(36);
@@ -27,15 +21,12 @@ camera.focal = single(90); %% focal in mm
 % Options :
 options.numberOfSteps = single(100) ;
 options.depthMax = single(20) ;
-% Output_Name = "Punaise_Sphere_" + int2str(interface.facesNumber) + "_" + int2str(options.numberOfSteps) + ".mat" ;
+% Output_Name = "test_" + int2str(options.numberOfSteps) + ".mat" ;
 
 % Files to load :
-load('Imgs_Et_Masques_Punaise_1.5.mat');
 load('data/Cameras.mat');
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Get interface points and normals :
-[interface.points, interface.normals] = interfaceSampling(interface);
+load('data/Pic_Bunny_e_IOR1.5.mat');
+load('data/InterfaceEllipsoide2.mat')
 
 %% Use only selected cameras :
 usedCam = [refImg, witnImgs_list, ctrlImgs_list];
